@@ -1,0 +1,16 @@
+{
+  "name": "Cherry Markdown",
+  "install": "yarn install --frozen-lockfile",
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "CODESANDBOX_SSE=true yarn dev"
+    }
+  ],
+  "ports": [
+    {
+      "name": "cherry-markdown-dev",
+      "port": 8000
+    }
+  ]
+}
