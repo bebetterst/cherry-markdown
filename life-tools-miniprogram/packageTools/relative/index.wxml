@@ -1,67 +1,99 @@
-<view class="page fade-rise">
-  <view class="page-intro">
-    <view class="page-kicker">好算生活</view>
-    <view class="page-title">亲戚称呼</view>
-    <view class="page-desc">像点菜单一样逐级选择：我 → 谁 → 的谁</view>
+<view class="rel-page fade-rise">
+  <!-- 步骤条：一屏只做一件事 -->
+  <view class="step-bar">
+    <view
+      wx:for="{{4}}"
+      wx:key="*this"
+      class="step-dot {{index <= stepIndex ? 'done' : ''}} {{index === stepIndex && !atMaxDepth ? 'current' : ''}}"
+    ></view>
   </view>
 
-  <!-- 路径面包屑：可点回退到某一层 -->
-  <scroll-view scroll-x class="crumb-scroll" enhanced show-scrollbar="{{false}}">
-    <view class="crumbs">
-      <view class="crumb {{pathKeys.length===0?'on':''}}" data-index="-1" bindtap="jumpTo">我</view>
+  <scroll-view scroll-x class="chain-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="chain">
+      <view class="chain-node {{pathKeys.length===0?'on':''}}" data-index="-1" bindtap="jumpTo">
+        <view class="node-avatar">我</view>
+        <text class="node-label">起点</text>
+      </view>
       <block wx:for="{{pathLabels}}" wx:key="*this">
-        <text class="crumb-sep">›</text>
-        <view class="crumb {{index===pathLabels.length-1?'on':''}}" data-index="{{index}}" bindtap="jumpTo">{{item}}</view>
+        <view class="chain-line"></view>
+        <view class="chain-node {{index===pathLabels.length-1?'on':''}}" data-index="{{index}}" bindtap="jumpTo">
+          <view class="node-avatar">{{item[0]}}</view>
+          <text class="node-label">{{item}}</text>
+        </view>
       </block>
     </view>
   </scroll-view>
 
-  <!-- 当前结果摘要（选完一层就给反馈） -->
-  <view wx:if="{{preview.title}}" class="preview-card {{preview.empty?'is-empty':''}}">
-    <view class="preview-label">{{preview.empty ? '下一步' : '当前称呼'}}</view>
-    <view class="preview-title">{{preview.empty ? '请选择下一层关系' : preview.title}}</view>
-    <view class="preview-tip">{{preview.tip}}</view>
+  <!-- 结果区：有称呼时突出展示，无称呼时轻提示 -->
+  <view class="outcome {{resultTitle ? 'outcome--hit' : 'outcome--idle'}}">
+    <view class="outcome-kicker">{{resultTitle ? '应该称呼' : '称呼结果'}}</view>
+    <view class="outcome-title">{{resultTitle || '—'}}</view>
+    <view class="outcome-tip">{{resultTitle ? resultTip : stepPrompt}}</view>
   </view>
 
-  <view class="step-head">
-    <view class="step-title">{{stepTitle}}</view>
-    <view class="step-meta">第 {{stepNo}} / 4 层</view>
+  <!-- 已达上限 -->
+  <view wx:if="{{atMaxDepth}}" class="sheet sheet--done">
+    <view class="sheet-title">关系已选满</view>
+    <view class="sheet-desc">最多支持 4 层。可点上方路径回退，或分享当前结果。</view>
   </view>
 
-  <!-- 分组列表：大热区，符合拇指操作 -->
-  <view class="group-list" wx:if="{{pathKeys.length < 4}}">
-    <block wx:for="{{optionGroups}}" wx:key="id">
-      <view class="group">
-        <view class="group-title">{{item.title}}</view>
-        <view class="group-card">
-          <view
-            class="row pressable"
-            wx:for="{{item.items}}"
-            wx:for-item="opt"
-            wx:key="key"
-            data-key="{{opt.key}}"
-            data-label="{{opt.label}}"
-            bindtap="push"
-          >
-            <view class="row-main">
-              <view class="row-title">{{opt.label}}</view>
-              <view class="row-hint">{{opt.hint}}</view>
-            </view>
-            <view class="row-chevron">›</view>
-          </view>
-        </view>
+  <!-- 第一步：只展示 4 个关系大类（2×2），不堆长列表 -->
+  <view wx:elif="{{uiStage === 'category'}}" class="sheet">
+    <view class="sheet-head">
+      <view class="sheet-title">{{stepPrompt}}</view>
+      <view class="sheet-desc">选一类，再选具体是谁</view>
+    </view>
+    <view class="cat-grid">
+      <view
+        class="cat-tile pressable"
+        wx:for="{{optionGroups}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="openGroup"
+      >
+        <image class="cat-icon" src="{{item.icon}}" mode="aspectFit" />
+        <view class="cat-name">{{item.title}}</view>
+        <view class="cat-desc">{{item.desc}}</view>
       </view>
-    </block>
+    </view>
   </view>
-  <view wx:else class="limit-tip">已达 4 层上限。可点路径回退，或直接分享当前结果。</view>
 
-  <view class="safe-bottom"></view>
+  <!-- 第二步：只展示当前大类下的 2～4 个选项 -->
+  <view wx:elif="{{uiStage === 'person' && activeGroup}}" class="sheet">
+    <view class="sheet-nav pressable" bindtap="backToCategory">
+      <text class="nav-back">‹</text>
+      <text>返回选关系大类</text>
+    </view>
+    <view class="sheet-head">
+      <view class="sheet-title">{{activeGroup.title}}</view>
+      <view class="sheet-desc">点选具体一位</view>
+    </view>
+    <view class="person-grid {{activeGroup.items.length > 2 ? 'cols-2' : 'cols-1'}}">
+      <view
+        class="person-tile pressable"
+        wx:for="{{activeGroup.items}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        data-label="{{item.label}}"
+        bindtap="pickPerson"
+      >
+        <view class="person-name">{{item.label}}</view>
+        <view class="person-hint">{{item.hint}}</view>
+      </view>
+    </view>
+  </view>
 
-  <!-- 底部固定操作栏 -->
-  <view class="dock">
-    <button class="dock-btn ghost" bindtap="back" disabled="{{!pathKeys.length}}">回退</button>
-    <button class="dock-btn ghost" bindtap="reset">清空</button>
-    <button class="dock-btn primary" open-type="share" disabled="{{!canShare}}">分享</button>
-    <button class="dock-btn accent" bindtap="toggleFav">{{fav ? '已藏' : '收藏'}}</button>
+  <view class="bottom-space"></view>
+
+  <!-- 底部主操作：分享为主，次要操作为文字链 -->
+  <view class="footer">
+    <button class="footer-share" open-type="share" disabled="{{!canShare}}">分享称呼结果</button>
+    <view class="footer-links">
+      <text class="link {{pathKeys.length ? '' : 'disabled'}}" bindtap="back">回退一步</text>
+      <text class="link-sep">·</text>
+      <text class="link" bindtap="reset">重新开始</text>
+      <text class="link-sep">·</text>
+      <text class="link" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</text>
+    </view>
   </view>
 </view>

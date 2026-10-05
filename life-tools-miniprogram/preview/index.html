@@ -61,15 +61,18 @@
         <div id="m-result" class="result hidden"></div>
       </section>
 
-      <section id="panel-relative" class="panel">
-        <h2>亲戚称呼</h2>
-        <div class="crumbs" id="rel-crumbs"></div>
-        <div id="rel-preview" class="preview empty">请选择下一层关系</div>
-        <div id="rel-groups"></div>
-        <div class="dock">
-          <button type="button" id="rel-back">回退</button>
-          <button type="button" id="rel-reset">清空</button>
-          <button type="button" id="rel-share" class="share" disabled>分享</button>
+      <section id="panel-relative" class="panel rel-panel">
+        <div class="rel-step-bar" id="rel-step-bar"></div>
+        <div class="rel-chain-wrap" id="rel-chain"></div>
+        <div class="rel-outcome" id="rel-outcome"></div>
+        <div id="rel-sheet"></div>
+        <div class="rel-footer">
+          <button type="button" id="rel-share" class="rel-share-btn" disabled>分享称呼结果</button>
+          <div class="rel-footer-links">
+            <button type="button" class="rel-link" id="rel-back">回退一步</button>
+            <span class="rel-link-sep">·</span>
+            <button type="button" class="rel-link" id="rel-reset">重新开始</button>
+          </div>
         </div>
       </section>
     </main>

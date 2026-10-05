@@ -8,17 +8,70 @@
     { code: '换', name: '单位换算', desc: '长度 / 重量 / 温度', panel: 'tools' }
   ]
 
-  const GROUPS = [
-    { title: '父母长辈', items: [['父', '爸爸', '父亲'], ['母', '妈妈', '母亲']] },
-    { title: '配偶', items: [['夫', '丈夫', '老公'], ['妻', '妻子', '老婆']] },
-    { title: '兄弟姐妹', items: [['兄', '哥哥', '兄长'], ['弟', '弟弟', '弟弟'], ['姐', '姐姐', '姐姐'], ['妹', '妹妹', '妹妹']] },
-    { title: '子女晚辈', items: [['子', '儿子', '儿子'], ['女', '女儿', '女儿']] }
+  const ICON = '../assets/icons'
+  const OPTION_GROUPS = [
+    {
+      id: 'parents',
+      title: '父母长辈',
+      desc: '爸爸、妈妈',
+      icon: `${ICON}/cat-parents.png`,
+      items: [
+        { key: '父', label: '爸爸', hint: '父亲' },
+        { key: '母', label: '妈妈', hint: '母亲' }
+      ]
+    },
+    {
+      id: 'spouse',
+      title: '配偶',
+      desc: '丈夫、妻子',
+      icon: `${ICON}/cat-spouse.png`,
+      items: [
+        { key: '夫', label: '丈夫', hint: '老公' },
+        { key: '妻', label: '妻子', hint: '老婆' }
+      ]
+    },
+    {
+      id: 'siblings',
+      title: '兄弟姐妹',
+      desc: '兄姐弟妹',
+      icon: `${ICON}/cat-sibling.png`,
+      items: [
+        { key: '兄', label: '哥哥', hint: '兄长' },
+        { key: '弟', label: '弟弟', hint: '弟弟' },
+        { key: '姐', label: '姐姐', hint: '姐姐' },
+        { key: '妹', label: '妹妹', hint: '妹妹' }
+      ]
+    },
+    {
+      id: 'children',
+      title: '子女晚辈',
+      desc: '儿子、女儿',
+      icon: `${ICON}/cat-child.png`,
+      items: [
+        { key: '子', label: '儿子', hint: '儿子' },
+        { key: '女', label: '女儿', hint: '女儿' }
+      ]
+    }
   ]
 
   const REL_MAP = {
     父: '爸爸', 母: '妈妈', 父父: '爷爷', 父母: '奶奶', 母父: '外公', 母母: '外婆',
     父兄: '伯伯', 父弟: '叔叔', 母兄: '舅舅', 母弟: '舅舅', 母姐: '姨妈', 母妹: '姨妈',
     妻父: '岳父', 妻母: '岳母', 夫父: '公公', 夫母: '婆婆'
+  }
+
+  function relStepPrompt(depth, labels) {
+    if (depth >= 4) return '已选满 4 层'
+    if (depth === 0) return '先选 Ta 和你的关系'
+    return `「${labels[labels.length - 1]}」的…`
+  }
+
+  function relPreview(keys) {
+    if (!keys.length) return { title: '', tip: '选一类，再选具体是谁', empty: true }
+    if (keys.length > 4) return { title: '关系过远', tip: '暂支持 4 层以内', empty: false }
+    const title = REL_MAP[keys.join('')]
+    if (title) return { title, tip: `关系链：我 → ${keys.join(' → ')}`, empty: false }
+    return { title: '', tip: '暂未收录，可回退一层换个路径', empty: true }
   }
 
   function calcMortgage({ amountWan, years, rateAnnual, method }) {
@@ -56,6 +109,8 @@
   const state = {
     relKeys: [],
     relLabels: [],
+    relUiStage: 'category',
+    relActiveGroupId: '',
     countdowns: []
   }
 
@@ -84,17 +139,32 @@
   }
 
   function renderRelative() {
-    const crumbs = document.getElementById('rel-crumbs')
-    const preview = document.getElementById('rel-preview')
-    const groups = document.getElementById('rel-groups')
+    const depth = state.relKeys.length
+    const atMax = depth >= 4
+    const stepIndex = Math.min(depth, 3)
+    const stepPrompt = relStepPrompt(depth, state.relLabels)
+    const preview = relPreview(state.relKeys)
+    const resultTitle = preview.title && !preview.empty ? preview.title : ''
     const shareBtn = document.getElementById('rel-share')
+    const backBtn = document.getElementById('rel-back')
 
-    crumbs.innerHTML = `<span class="crumb ${state.relKeys.length ? '' : 'on'}" data-i="-1">我</span>` +
-      state.relLabels.map((label, i) => `<span class="crumb-sep">›</span><span class="crumb ${i === state.relLabels.length - 1 ? 'on' : ''}" data-i="${i}">${label}</span>`).join('')
+    document.getElementById('rel-step-bar').innerHTML = [0, 1, 2, 3]
+      .map((i) => {
+        const done = i <= stepIndex
+        const current = i === stepIndex && !atMax
+        return `<span class="rel-step-dot ${done ? 'done' : ''} ${current ? 'current' : ''}"></span>`
+      })
+      .join('')
 
-    crumbs.querySelectorAll('.crumb').forEach((el) => {
-      el.addEventListener('click', () => {
-        const i = Number(el.dataset.i)
+    let chainHtml = `<button type="button" class="rel-chain-node ${depth === 0 ? 'on' : ''}" data-i="-1"><span class="rel-node-avatar">我</span><span class="rel-node-label">起点</span></button>`
+    state.relLabels.forEach((label, i) => {
+      chainHtml += `<span class="rel-chain-line"></span><button type="button" class="rel-chain-node ${i === depth - 1 ? 'on' : ''}" data-i="${i}"><span class="rel-node-avatar">${label[0]}</span><span class="rel-node-label">${label}</span></button>`
+    })
+    const chainEl = document.getElementById('rel-chain')
+    chainEl.innerHTML = `<div class="rel-chain">${chainHtml}</div>`
+    chainEl.querySelectorAll('.rel-chain-node').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.i)
         if (i < 0) {
           state.relKeys = []
           state.relLabels = []
@@ -102,50 +172,96 @@
           state.relKeys = state.relKeys.slice(0, i + 1)
           state.relLabels = state.relLabels.slice(0, i + 1)
         }
+        state.relUiStage = 'category'
+        state.relActiveGroupId = ''
         renderRelative()
       })
     })
 
-    const key = state.relKeys.join('')
-    const title = REL_MAP[key]
-    if (!state.relKeys.length) {
-      preview.className = 'preview empty'
-      preview.innerHTML = `<div class="label">下一步</div><div class="title" style="font-size:18px;color:var(--muted);font-weight:600">从下方列表点选第一层关系</div>`
-      shareBtn.disabled = true
-    } else if (title) {
-      preview.className = 'preview'
-      preview.innerHTML = `<div class="label">当前称呼</div><div class="title">${title}</div>`
-      shareBtn.disabled = false
-    } else {
-      preview.className = 'preview empty'
-      preview.innerHTML = `<div class="label">当前称呼</div><div class="title" style="font-size:18px">暂未收录，可回退换路径</div>`
-      shareBtn.disabled = true
-    }
+    const outcome = document.getElementById('rel-outcome')
+    outcome.className = `rel-outcome ${resultTitle ? 'hit' : 'idle'}`
+    outcome.innerHTML = `
+      <div class="rel-outcome-kicker">${resultTitle ? '应该称呼' : '称呼结果'}</div>
+      <div class="rel-outcome-title">${resultTitle || '—'}</div>
+      <div class="rel-outcome-tip">${resultTitle ? preview.tip : stepPrompt}</div>
+    `
 
-    if (state.relKeys.length >= 4) {
-      groups.innerHTML = `<div class="preview empty">已达 4 层上限，可点路径回退</div>`
+    shareBtn.disabled = !(resultTitle && resultTitle !== '暂未收录' && resultTitle !== '关系过远')
+    backBtn.disabled = depth === 0 && state.relUiStage === 'category'
+
+    const sheet = document.getElementById('rel-sheet')
+    if (atMax) {
+      sheet.innerHTML = `
+        <div class="rel-sheet">
+          <div class="rel-sheet-title">关系已选满</div>
+          <div class="rel-sheet-desc">最多支持 4 层。可点上方路径回退，或分享当前结果。</div>
+        </div>`
       return
     }
 
-    groups.innerHTML = GROUPS.map((g) => `
-      <div class="group">
-        <div class="group-title">${g.title}</div>
-        <div class="group-card">
-          ${g.items.map(([key, label, hint]) => `
-            <div class="row" data-key="${key}" data-label="${label}">
-              <div><div class="t">${label}</div><div class="h">${hint}</div></div>
-              <div class="c">›</div>
-            </div>
+    if (state.relUiStage === 'person' && state.relActiveGroupId) {
+      const group = OPTION_GROUPS.find((g) => g.id === state.relActiveGroupId)
+      if (!group) {
+        state.relUiStage = 'category'
+        state.relActiveGroupId = ''
+        renderRelative()
+        return
+      }
+      const cols = group.items.length > 2 ? 'cols-2' : 'cols-1'
+      sheet.innerHTML = `
+        <div class="rel-sheet">
+          <button type="button" class="rel-sheet-nav" id="rel-back-cat">‹ 返回选关系大类</button>
+          <div class="rel-sheet-head">
+            <div class="rel-sheet-title">${group.title}</div>
+            <div class="rel-sheet-desc">点选具体一位</div>
+          </div>
+          <div class="rel-person-grid ${cols}">
+            ${group.items.map((item) => `
+              <button type="button" class="rel-person-tile" data-key="${item.key}" data-label="${item.label}">
+                <div class="rel-person-name">${item.label}</div>
+                <div class="rel-person-hint">${item.hint}</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>`
+      document.getElementById('rel-back-cat').addEventListener('click', () => {
+        state.relUiStage = 'category'
+        state.relActiveGroupId = ''
+        renderRelative()
+      })
+      sheet.querySelectorAll('.rel-person-tile').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (state.relKeys.length >= 4) return
+          state.relKeys.push(btn.dataset.key)
+          state.relLabels.push(btn.dataset.label)
+          state.relUiStage = 'category'
+          state.relActiveGroupId = ''
+          renderRelative()
+        })
+      })
+      return
+    }
+
+    sheet.innerHTML = `
+      <div class="rel-sheet">
+        <div class="rel-sheet-head">
+          <div class="rel-sheet-title">${stepPrompt}</div>
+          <div class="rel-sheet-desc">选一类，再选具体是谁</div>
+        </div>
+        <div class="rel-cat-grid">
+          ${OPTION_GROUPS.map((g) => `
+            <button type="button" class="rel-cat-tile" data-id="${g.id}">
+              <img class="rel-cat-icon" src="${g.icon}" alt="" />
+              <div class="rel-cat-name">${g.title}</div>
+              <div class="rel-cat-desc">${g.desc}</div>
+            </button>
           `).join('')}
         </div>
-      </div>
-    `).join('')
-
-    groups.querySelectorAll('.row').forEach((row) => {
-      row.addEventListener('click', () => {
-        if (state.relKeys.length >= 4) return
-        state.relKeys.push(row.dataset.key)
-        state.relLabels.push(row.dataset.label)
+      </div>`
+    sheet.querySelectorAll('.rel-cat-tile').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.relUiStage = 'person'
+        state.relActiveGroupId = btn.dataset.id
         renderRelative()
       })
     })
@@ -206,13 +322,23 @@
     })
 
     document.getElementById('rel-back').addEventListener('click', () => {
+      if (state.relUiStage === 'person') {
+        state.relUiStage = 'category'
+        state.relActiveGroupId = ''
+        renderRelative()
+        return
+      }
       state.relKeys.pop()
       state.relLabels.pop()
+      state.relUiStage = 'category'
+      state.relActiveGroupId = ''
       renderRelative()
     })
     document.getElementById('rel-reset').addEventListener('click', () => {
       state.relKeys = []
       state.relLabels = []
+      state.relUiStage = 'category'
+      state.relActiveGroupId = ''
       renderRelative()
     })
 
@@ -248,12 +374,13 @@
     await sleep(500)
     switchPanel('relative')
     await sleep(400)
-    // 妈妈
-    const mom = [...document.querySelectorAll('#rel-groups .row')].find((el) => el.dataset.key === '母')
-    mom && mom.click()
+    document.querySelector('.rel-cat-tile[data-id="parents"]')?.click()
     await sleep(450)
-    const bro = [...document.querySelectorAll('#rel-groups .row')].find((el) => el.dataset.key === '兄')
-    bro && bro.click()
+    document.querySelector('.rel-person-tile[data-key="母"]')?.click()
+    await sleep(450)
+    document.querySelector('.rel-cat-tile[data-id="siblings"]')?.click()
+    await sleep(450)
+    document.querySelector('.rel-person-tile[data-key="兄"]')?.click()
     await sleep(700)
     switchPanel('mortgage')
     await sleep(350)

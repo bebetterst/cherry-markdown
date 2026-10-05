@@ -2,47 +2,80 @@ const { OPTION_GROUPS, calcRelative } = require('../../utils/relative')
 const storage = require('../../utils/storage')
 const feedback = require('../../utils/feedback')
 
+function buildState(pathKeys, pathLabels, uiStage, activeGroupId) {
+  const depth = pathKeys.length
+  const preview = calcRelative(pathKeys)
+  const canShare = !!(preview.title && !preview.empty && preview.title !== '暂未收录' && preview.title !== '关系过远')
+  const activeGroup = activeGroupId ? OPTION_GROUPS.find((g) => g.id === activeGroupId) : null
+  const stepIndex = Math.min(depth, 3)
+  const stepPrompt =
+    depth >= 4
+      ? '已选满 4 层'
+      : depth === 0
+        ? '先选 Ta 和你的关系'
+        : `「${pathLabels[pathLabels.length - 1]}」的…`
+
+  return {
+    pathKeys,
+    pathLabels,
+    uiStage,
+    activeGroupId,
+    activeGroup,
+    optionGroups: OPTION_GROUPS,
+    preview,
+    resultTitle: preview.title && !preview.empty ? preview.title : '',
+    resultTip: preview.tip || '',
+    stepIndex,
+    stepPrompt,
+    canShare,
+    shareTitle: preview.shareText || '好算生活｜亲戚称呼计算',
+    atMaxDepth: depth >= 4
+  }
+}
+
 Page({
   data: {
-    optionGroups: OPTION_GROUPS,
     pathKeys: [],
     pathLabels: [],
-    preview: { title: '', tip: '从「父母长辈」等分组里点选第一层关系', empty: true },
-    stepTitle: '选择第一层关系',
-    stepNo: 1,
+    uiStage: 'category',
+    activeGroupId: '',
+    activeGroup: null,
+    optionGroups: OPTION_GROUPS,
+    preview: {},
+    resultTitle: '',
+    resultTip: '',
+    stepIndex: 0,
+    stepPrompt: '先选 Ta 和你的关系',
     canShare: false,
     fav: false,
-    shareTitle: ''
+    shareTitle: '',
+    atMaxDepth: false
   },
 
   onShow() {
     this.setData({ fav: storage.isFavorite('relative') })
   },
 
-  refreshPreview(pathKeys, pathLabels) {
-    const preview = calcRelative(pathKeys)
-    const stepNo = Math.min(pathKeys.length + 1, 4)
-    const stepTitle =
-      pathKeys.length >= 4
-        ? '已选满四层'
-        : pathKeys.length === 0
-          ? '选择第一层关系'
-          : `继续选择：${pathLabels[pathLabels.length - 1]}的…`
-    const canShare = !!(preview.title && !preview.empty && preview.title !== '暂未收录' && preview.title !== '关系过远')
-    this.setData({
-      pathKeys,
-      pathLabels,
-      preview: pathKeys.length === 0
-        ? { title: '', tip: '从下方列表点选第一层关系，例如先点「妈妈」', empty: true }
-        : preview,
-      stepTitle,
-      stepNo,
-      canShare,
-      shareTitle: preview.shareText || '好算生活｜亲戚称呼计算'
-    })
+  apply(pathKeys, pathLabels, uiStage, activeGroupId) {
+    this.setData(buildState(pathKeys, pathLabels, uiStage, activeGroupId))
   },
 
-  push(e) {
+  openGroup(e) {
+    if (this.data.atMaxDepth) {
+      feedback.warn('最多 4 层关系')
+      return
+    }
+    const id = e.currentTarget.dataset.id
+    feedback.soft()
+    this.apply(this.data.pathKeys, this.data.pathLabels, 'person', id)
+  },
+
+  backToCategory() {
+    feedback.soft()
+    this.apply(this.data.pathKeys, this.data.pathLabels, 'category', '')
+  },
+
+  pickPerson(e) {
     if (this.data.pathKeys.length >= 4) {
       feedback.warn('最多 4 层关系')
       return
@@ -52,28 +85,44 @@ Page({
     const pathLabels = this.data.pathLabels.concat(label)
     feedback.soft()
     storage.addHistory({ id: 'relative', path: '/packageTools/relative/index' })
-    this.refreshPreview(pathKeys, pathLabels)
+    const nextStage = pathKeys.length >= 4 ? 'done' : 'category'
+    this.apply(pathKeys, pathLabels, nextStage, '')
+    const preview = calcRelative(pathKeys)
+    if (preview.title && preview.title !== '暂未收录' && preview.title !== '关系过远') {
+      feedback.soft()
+    }
   },
 
   back() {
+    if (this.data.uiStage === 'person') {
+      this.backToCategory()
+      return
+    }
     if (!this.data.pathKeys.length) return
     feedback.soft()
-    this.refreshPreview(this.data.pathKeys.slice(0, -1), this.data.pathLabels.slice(0, -1))
+    const pathKeys = this.data.pathKeys.slice(0, -1)
+    const pathLabels = this.data.pathLabels.slice(0, -1)
+    this.apply(pathKeys, pathLabels, 'category', '')
   },
 
   jumpTo(e) {
     const index = Number(e.currentTarget.dataset.index)
     feedback.soft()
     if (index < 0) {
-      this.refreshPreview([], [])
+      this.apply([], [], 'category', '')
       return
     }
-    this.refreshPreview(this.data.pathKeys.slice(0, index + 1), this.data.pathLabels.slice(0, index + 1))
+    this.apply(
+      this.data.pathKeys.slice(0, index + 1),
+      this.data.pathLabels.slice(0, index + 1),
+      'category',
+      ''
+    )
   },
 
   reset() {
     feedback.soft()
-    this.refreshPreview([], [])
+    this.apply([], [], 'category', '')
   },
 
   toggleFav() {
