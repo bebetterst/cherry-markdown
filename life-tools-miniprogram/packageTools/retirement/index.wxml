@@ -1,0 +1,40 @@
+<view class="container fade-rise">
+  <view class="page-intro">
+    <view class="page-kicker">好算生活</view>
+    <view class="page-title">退休年龄查询</view>
+  </view>
+  <view class="form-shell">
+    <view class="field">
+      <text class="field-label">出生年月</text>
+      <picker mode="date" fields="month" value="{{birth}}" bindchange="onBirth">
+        <view class="field-input picker">{{birth || '选择出生年月'}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="field-label">性别</text>
+      <view class="seg">
+        <view class="seg-item {{gender==='male'?'active':''}}" data-g="male" bindtap="onGender">男</view>
+        <view class="seg-item {{gender==='female'?'active':''}}" data-g="female" bindtap="onGender">女</view>
+      </view>
+    </view>
+    <view class="field" wx:if="{{gender==='female'}}">
+      <text class="field-label">原法定退休类型</text>
+      <view class="seg">
+        <view class="seg-item {{femaleType==='55'?'active':''}}" data-t="55" bindtap="onFemaleType">原 55 岁</view>
+        <view class="seg-item {{femaleType==='50'?'active':''}}" data-t="50" bindtap="onFemaleType">原 50 岁</view>
+      </view>
+    </view>
+    <button class="btn-primary" bindtap="calc">查询退休时间</button>
+  </view>
+  <view wx:if="{{result}}" class="result-box result-pop">
+    <view class="result-label">预计退休时间</view>
+    <view class="result-value small">{{result.retireAt}}</view>
+    <view class="result-meta">退休年龄约 {{result.retireAgeText}}</view>
+    <view class="result-meta">相对原 {{result.originalAge}} 岁，延迟 {{result.delayMonths}} 个月</view>
+  </view>
+  <view class="actions" wx:if="{{result}}">
+    <button class="btn-share action" open-type="share">分享结果</button>
+    <button class="btn-ghost action" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</button>
+  </view>
+  <view class="hint">{{hint}}</view>
+</view>

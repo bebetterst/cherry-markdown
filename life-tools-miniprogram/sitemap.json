@@ -1,0 +1,9 @@
+{
+  "desc": "好算生活 sitemap，便于搜一搜收录",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+<view class="container fade-rise">
+  <view class="hero">
+    <view class="hero-glow"></view>
+    <view class="brand-mark">好算生活</view>
+    <view class="brand-sub">把日常账算清楚，把关键日记明白</view>
+  </view>
+
+  <view class="search-shell">
+    <image class="search-glyph" src="/assets/icons/search.png" mode="aspectFit" />
+    <input
+      class="search-input"
+      placeholder="搜索房贷、个税、退休、亲戚称呼…"
+      placeholder-class="search-ph"
+      value="{{keyword}}"
+      confirm-type="search"
+      bindinput="onSearch"
+    />
+    <view wx:if="{{keyword}}" class="search-clear pressable" bindtap="clearSearch">清除</view>
+  </view>
+
+  <scroll-view scroll-x class="chips-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="chips">
+      <view
+        wx:for="{{hotKeywords}}"
+        wx:key="*this"
+        class="chip pressable"
+        data-word="{{item}}"
+        bindtap="onChip"
+      >{{item}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{continueTool}}" class="continue card pressable" data-path="{{continueTool.path}}" data-id="{{continueTool.id}}" data-tab="{{continueTool.tab}}" bindtap="goTool">
+    <view class="continue-left">
+      <image class="tool-icon" src="{{continueTool.icon}}" mode="aspectFit" />
+      <view>
+        <view class="continue-kicker">继续上次</view>
+        <view class="continue-name">{{continueTool.name}}</view>
+      </view>
+    </view>
+    <view class="continue-cta">打开 ›</view>
+  </view>
+
+  <view wx:if="{{nearestDay}}" class="day-peek card pressable" bindtap="goCountdown">
+    <view class="day-peek-copy">
+      <view class="continue-kicker">最近倒数日</view>
+      <view class="day-peek-title">{{nearestDay.title}}</view>
+    </view>
+    <view class="day-peek-count pulse-soft">
+      <text class="num">{{nearestDay.abs}}</text>
+      <text class="unit">{{nearestDay.delta < 0 ? '天前' : (nearestDay.delta === 0 ? '今天' : '天后')}}</text>
+    </view>
+  </view>
+
+  <view class="section-head">
+    <view class="section-title">常用工具</view>
+  </view>
+  <view class="list">
+    <view
+      class="list-item pressable"
+      wx:for="{{hotTools}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      data-id="{{item.id}}"
+      data-tab="{{item.tab}}"
+      bindtap="goTool"
+    >
+      <image class="tool-icon" src="{{item.icon}}" mode="aspectFit" />
+      <view class="list-main">
+        <view class="tool-name">{{item.name}}</view>
+        <view class="tool-desc">{{item.desc}}</view>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <view class="section-head">
+    <view class="section-title">全部工具</view>
+  </view>
+  <view class="seg">
+    <view
+      wx:for="{{categories}}"
+      wx:key="id"
+      class="seg-item {{category === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onCategory"
+    >{{item.name}}</view>
+  </view>
+
+  <view class="list">
+    <view
+      class="list-item pressable"
+      wx:for="{{filteredTools}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      data-id="{{item.id}}"
+      data-tab="{{item.tab}}"
+      bindtap="goTool"
+    >
+      <image class="tool-icon" src="{{item.icon}}" mode="aspectFit" />
+      <view class="list-main">
+        <view class="tool-name">{{item.name}}</view>
+        <view class="tool-desc">{{item.desc}}</view>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!filteredTools.length}}" class="empty">
+    <view class="empty-title">没有找到相关工具</view>
+    <view class="empty-desc">换个关键词，或点上方热门标签试试</view>
+  </view>
+</view>

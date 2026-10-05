@@ -1,0 +1,43 @@
+<view class="container fade-rise">
+  <view class="page-intro">
+    <view class="page-kicker">好算生活</view>
+    <view class="page-title">房贷计算器</view>
+  </view>
+
+  <view class="form-shell">
+    <view class="field">
+      <text class="field-label">贷款金额（万元）</text>
+      <input class="field-input" type="digit" value="{{amountWan}}" bindinput="onAmount" />
+    </view>
+    <view class="field">
+      <text class="field-label">贷款年限（年）</text>
+      <input class="field-input" type="number" value="{{years}}" bindinput="onYears" />
+    </view>
+    <view class="field">
+      <text class="field-label">年利率（%）</text>
+      <input class="field-input" type="digit" value="{{rate}}" bindinput="onRate" />
+    </view>
+    <view class="field">
+      <text class="field-label">还款方式</text>
+      <view class="seg">
+        <view class="seg-item {{method==='equalPayment'?'active':''}}" data-m="equalPayment" bindtap="onMethod">等额本息</view>
+        <view class="seg-item {{method==='equalPrincipal'?'active':''}}" data-m="equalPrincipal" bindtap="onMethod">等额本金</view>
+      </view>
+    </view>
+    <button class="btn-primary" bindtap="calc">开始计算</button>
+  </view>
+
+  <view wx:if="{{result}}" class="result-box result-pop">
+    <view class="result-label">{{result.methodLabel}} · 首月月供（元）</view>
+    <view class="result-value">{{result.monthlyText}}</view>
+    <view class="result-meta">总利息 {{result.interestText}} 元</view>
+    <view class="result-meta">还款总额 {{result.totalText}} 元 · {{result.months}} 期</view>
+    <view wx:if="{{method==='equalPrincipal'}}" class="result-meta">末月约 {{result.lastText}} 元</view>
+  </view>
+
+  <view class="actions" wx:if="{{result}}">
+    <button class="btn-share action" open-type="share">分享结果</button>
+    <button class="btn-ghost action" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</button>
+  </view>
+  <view class="hint">结果仅供参考，实际月供以贷款合同与银行系统为准。</view>
+</view>

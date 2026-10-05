@@ -1,0 +1,115 @@
+.profile {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+  padding: 12rpx 4rpx 8rpx;
+}
+
+.profile-badge {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(145deg, #0b3d32, #1a6b55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "HaosuanDisplay", "Songti SC", serif;
+  font-size: 48rpx;
+  box-shadow: 0 14rpx 28rpx rgba(11, 61, 50, 0.2);
+}
+
+.stats {
+  margin-top: 24rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.stat {
+  padding: 22rpx 10rpx;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid var(--line);
+  border-radius: var(--radius);
+}
+
+.stat-num {
+  font-size: 40rpx;
+  font-weight: 760;
+  color: var(--brand);
+}
+
+.stat-label {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 104rpx;
+  padding: 22rpx 22rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.tool-icon {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.name {
+  flex: 1;
+  font-weight: 650;
+  color: var(--brand);
+}
+
+.arrow {
+  color: #9aada3;
+  font-size: 36rpx;
+}
+
+.note {
+  padding: 8rpx 4rpx 20rpx;
+}
+
+.note-item {
+  position: relative;
+  padding: 14rpx 0 14rpx 22rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+  line-height: 1.65;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.note-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 28rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: var(--brand-2);
+}
+
+.empty.soft {
+  padding: 8rpx 4rpx 18rpx;
+  text-align: left;
+}

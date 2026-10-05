@@ -1,0 +1,2 @@
+@import "../_shared.wxss";
+.picker { display:flex; align-items:center; }

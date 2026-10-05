@@ -1,0 +1,78 @@
+<view class="rel-page fade-rise">
+  <!-- 结果：称呼 + 地方别称 -->
+  <view class="outcome {{resultTitle ? 'outcome--hit' : 'outcome--idle'}}">
+    <view class="outcome-kicker">{{resultTitle ? '应该称呼' : '称呼结果'}}</view>
+    <view class="outcome-title">{{resultTitle || '—'}}</view>
+    <view wx:if="{{aliasText}}" class="outcome-alias">{{aliasText}}</view>
+    <view class="outcome-tip">{{resultTip || stepHint}}</view>
+  </view>
+
+  <!-- 4 栏位 · 两行，必须从第 1 栏起填 -->
+  <view class="slot-panel">
+    <view class="slot-head">
+      <text class="slot-title">关系栏位</text>
+      <text class="slot-sub">{{stepHint}}</text>
+    </view>
+    <view class="slot-grid">
+      <view
+        wx:for="{{slots}}"
+        wx:key="index"
+        class="slot pressable status-{{item.status}} {{item.isActive ? 'active' : ''}}"
+        data-index="{{item.index}}"
+        bindtap="tapSlot"
+      >
+        <view class="slot-no">{{item.no}}</view>
+        <view class="slot-badge">{{item.badge}}</view>
+        <view class="slot-label">{{item.filled ? item.label : (item.locked ? '待解锁' : '点选')}}</view>
+        <view class="slot-hint">{{item.hint}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 候选关系：点栏位后出现在下方 -->
+  <view wx:if="{{picking}}" class="picker sheet">
+    <view class="picker-bar">
+      <view class="picker-title">第 {{activeSlot + 1}} 栏 · 选关系</view>
+      <view class="picker-close pressable" bindtap="closePicker">收起</view>
+    </view>
+    <view class="picker-tip">已按当前人物性别过滤不合理选项</view>
+
+    <block wx:for="{{candidateGroups}}" wx:key="title">
+      <view class="opt-group">
+        <view class="opt-group-title">{{item.title}}</view>
+        <view class="opt-row">
+          <view
+            wx:for="{{item.items}}"
+            wx:for-item="opt"
+            wx:key="key"
+            class="opt-chip pressable {{pathKeys[activeSlot]===opt.key ? 'on' : ''}}"
+            data-key="{{opt.key}}"
+            data-label="{{opt.label}}"
+            bindtap="pickRelation"
+          >
+            <view class="opt-badge">{{opt.badge}}</view>
+            <view class="opt-text">
+              <view class="opt-name">{{opt.label}}</view>
+              <view class="opt-hint">{{opt.hint}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:else class="idle-tip">点上方栏位选择或修改关系；最多 4 层</view>
+
+  <view class="bottom-space"></view>
+
+  <view class="footer">
+    <button class="footer-share" open-type="share" disabled="{{!canShare}}">分享称呼结果</button>
+    <view class="footer-links">
+      <text class="link {{pathKeys.length || picking ? '' : 'disabled'}}" bindtap="back">回退</text>
+      <text class="link-sep">·</text>
+      <text class="link" bindtap="reset">重新开始</text>
+      <text class="link-sep">·</text>
+      <text class="link" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</text>
+    </view>
+  </view>
+</view>

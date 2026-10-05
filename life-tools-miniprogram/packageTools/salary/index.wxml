@@ -1,0 +1,32 @@
+<view class="container fade-rise">
+  <view class="page-intro">
+    <view class="page-kicker">好算生活</view>
+    <view class="page-title">工资个税估算</view>
+  </view>
+  <view class="form-shell">
+    <view class="field">
+      <text class="field-label">税前月薪（元）</text>
+      <input class="field-input" type="digit" value="{{gross}}" bindinput="onGross" />
+    </view>
+    <view class="field">
+      <text class="field-label">五险一金个人缴纳（元/月）</text>
+      <input class="field-input" type="digit" value="{{social}}" bindinput="onSocial" />
+    </view>
+    <view class="field">
+      <text class="field-label">专项附加扣除（元/月，可填0）</text>
+      <input class="field-input" type="digit" value="{{special}}" bindinput="onSpecial" />
+    </view>
+    <button class="btn-primary" bindtap="calc">估算税后</button>
+  </view>
+  <view wx:if="{{result}}" class="result-box result-pop">
+    <view class="result-label">估算税后月收入（元）</view>
+    <view class="result-value">{{result.netText}}</view>
+    <view class="result-meta">估算个税约 {{result.taxText}} 元/月</view>
+    <view class="result-meta">年估算个税约 {{result.annualText}} 元</view>
+  </view>
+  <view class="actions" wx:if="{{result}}">
+    <button class="btn-share action" open-type="share">分享结果</button>
+    <button class="btn-ghost action" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</button>
+  </view>
+  <view class="hint">{{hint}}</view>
+</view>

@@ -1,0 +1,63 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/countdown/index",
+    "pages/mine/index"
+  ],
+  "subPackages": [
+    {
+      "root": "packageTools",
+      "name": "tools",
+      "pages": [
+        "mortgage/index",
+        "salary/index",
+        "retirement/index",
+        "relative/index",
+        "unit/index",
+        "dateGap/index"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/index/index": {
+      "network": "all",
+      "packages": ["tools"]
+    }
+  },
+  "window": {
+    "navigationBarTitleText": "好算生活",
+    "navigationBarBackgroundColor": "#0B3D32",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#EEF4F0",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#6A7A72",
+    "selectedColor": "#0B3D32",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "工具",
+        "iconPath": "assets/tab-tools.png",
+        "selectedIconPath": "assets/tab-tools-active.png"
+      },
+      {
+        "pagePath": "pages/countdown/index",
+        "text": "倒数日",
+        "iconPath": "assets/tab-day.png",
+        "selectedIconPath": "assets/tab-day-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "assets/tab-mine.png",
+        "selectedIconPath": "assets/tab-mine-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}
