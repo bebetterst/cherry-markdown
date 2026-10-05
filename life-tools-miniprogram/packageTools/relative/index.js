@@ -1,35 +1,77 @@
-const { OPTION_GROUPS, calcRelative } = require('../../utils/relative')
+/**
+ * 亲戚称呼：4 栏位（两行）→ 点栏位出候选；按性别过滤配偶选项
+ */
+const {
+  calcRelative,
+  getCandidateGroups,
+  pathLabels,
+  EDGE
+} = require('../../utils/relative')
 const storage = require('../../utils/storage')
 const feedback = require('../../utils/feedback')
 
-function buildState(pathKeys, pathLabels, uiStage, activeGroupId) {
+const SLOT_COUNT = 4
+
+function buildSlots(pathKeys, activeSlot) {
+  const labels = pathLabels(pathKeys)
+  const slots = []
+  for (let i = 0; i < SLOT_COUNT; i += 1) {
+    const filled = i < pathKeys.length
+    const canOpen = i === 0 || i <= pathKeys.length
+    // 只能点：已填栏、下一空栏；更后面的锁定
+    const locked = i > pathKeys.length
+    const isActive = activeSlot === i
+    let status = 'empty'
+    if (locked) status = 'locked'
+    else if (filled) status = 'filled'
+    else if (canOpen) status = 'next'
+    slots.push({
+      index: i,
+      no: i + 1,
+      key: filled ? pathKeys[i] : '',
+      label: filled ? labels[i] : '',
+      badge: filled ? labels[i][0] : String(i + 1),
+      filled,
+      locked,
+      canOpen: !locked,
+      isActive,
+      status,
+      hint: locked ? '先填前面' : filled ? '可改选' : i === pathKeys.length ? '点此选择' : ''
+    })
+  }
+  return slots
+}
+
+function buildState(pathKeys, activeSlot) {
   const depth = pathKeys.length
   const preview = calcRelative(pathKeys)
-  const canShare = !!(preview.title && !preview.empty && preview.title !== '暂未收录' && preview.title !== '关系过远')
-  const activeGroup = activeGroupId ? OPTION_GROUPS.find((g) => g.id === activeGroupId) : null
-  const stepIndex = Math.min(depth, 3)
-  const stepPrompt =
-    depth >= 4
-      ? '已选满 4 层'
-      : depth === 0
-        ? '先选 Ta 和你的关系'
-        : `「${pathLabels[pathLabels.length - 1]}」的…`
+  const canShare = !!(preview.title && preview.title !== '暂未收录' && preview.title !== '关系过远')
+  const picking = activeSlot != null && activeSlot >= 0 && activeSlot < SLOT_COUNT
+  const candidateGroups = picking ? getCandidateGroups(pathKeys, activeSlot) : []
+  const activeLabel =
+    picking && pathKeys[activeSlot] && EDGE[pathKeys[activeSlot]]
+      ? EDGE[pathKeys[activeSlot]].label
+      : ''
 
   return {
     pathKeys,
-    pathLabels,
-    uiStage,
-    activeGroupId,
-    activeGroup,
-    optionGroups: OPTION_GROUPS,
+    pathLabels: pathLabels(pathKeys),
+    slots: buildSlots(pathKeys, picking ? activeSlot : -1),
+    activeSlot: picking ? activeSlot : -1,
+    picking,
+    candidateGroups,
+    activeLabel,
     preview,
     resultTitle: preview.title && !preview.empty ? preview.title : '',
     resultTip: preview.tip || '',
-    stepIndex,
-    stepPrompt,
+    aliasText: preview.aliasText || '',
     canShare,
     shareTitle: preview.shareText || '好算生活｜亲戚称呼计算',
-    atMaxDepth: depth >= 4
+    stepHint: depth
+      ? picking
+        ? `正在设置第 ${activeSlot + 1} 栏`
+        : '可继续点下一栏，或点已选栏修改'
+      : '请从第 1 栏开始选择关系'
   }
 }
 
@@ -37,92 +79,88 @@ Page({
   data: {
     pathKeys: [],
     pathLabels: [],
-    uiStage: 'category',
-    activeGroupId: '',
-    activeGroup: null,
-    optionGroups: OPTION_GROUPS,
+    slots: [],
+    activeSlot: -1,
+    picking: false,
+    candidateGroups: [],
+    activeLabel: '',
     preview: {},
     resultTitle: '',
     resultTip: '',
-    stepIndex: 0,
-    stepPrompt: '先选 Ta 和你的关系',
+    aliasText: '',
     canShare: false,
     fav: false,
     shareTitle: '',
-    atMaxDepth: false
+    stepHint: '请从第 1 栏开始选择关系'
+  },
+
+  onLoad() {
+    this.apply([], 0)
   },
 
   onShow() {
     this.setData({ fav: storage.isFavorite('relative') })
   },
 
-  apply(pathKeys, pathLabels, uiStage, activeGroupId) {
-    this.setData(buildState(pathKeys, pathLabels, uiStage, activeGroupId))
+  apply(pathKeys, activeSlot) {
+    this.setData(buildState(pathKeys, activeSlot))
   },
 
-  openGroup(e) {
-    if (this.data.atMaxDepth) {
-      feedback.warn('最多 4 层关系')
+  tapSlot(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    const slot = this.data.slots[index]
+    if (!slot || slot.locked) {
+      feedback.warn('请先完成前面的栏位')
       return
     }
-    const id = e.currentTarget.dataset.id
     feedback.soft()
-    this.apply(this.data.pathKeys, this.data.pathLabels, 'person', id)
-  },
-
-  backToCategory() {
-    feedback.soft()
-    this.apply(this.data.pathKeys, this.data.pathLabels, 'category', '')
-  },
-
-  pickPerson(e) {
-    if (this.data.pathKeys.length >= 4) {
-      feedback.warn('最多 4 层关系')
+    // 再次点当前激活栏 → 收起
+    if (this.data.activeSlot === index && this.data.picking) {
+      this.apply(this.data.pathKeys, -1)
       return
     }
+    this.apply(this.data.pathKeys, index)
+  },
+
+  pickRelation(e) {
     const { key, label } = e.currentTarget.dataset
-    const pathKeys = this.data.pathKeys.concat(key)
-    const pathLabels = this.data.pathLabels.concat(label)
+    const slot = this.data.activeSlot
+    if (slot < 0 || slot > this.data.pathKeys.length) return
+
+    const pathKeys = this.data.pathKeys.slice(0, slot)
+    pathKeys.push(key)
+    // 改选中间栏时，清掉后面的栏
     feedback.soft()
     storage.addHistory({ id: 'relative', path: '/packageTools/relative/index' })
-    const nextStage = pathKeys.length >= 4 ? 'done' : 'category'
-    this.apply(pathKeys, pathLabels, nextStage, '')
+
+    const nextSlot = pathKeys.length < SLOT_COUNT ? pathKeys.length : -1
+    this.apply(pathKeys, nextSlot)
+
     const preview = calcRelative(pathKeys)
     if (preview.title && preview.title !== '暂未收录' && preview.title !== '关系过远') {
-      feedback.soft()
+      // 出结果时轻反馈即可
     }
+  },
+
+  closePicker() {
+    feedback.soft()
+    this.apply(this.data.pathKeys, -1)
   },
 
   back() {
-    if (this.data.uiStage === 'person') {
-      this.backToCategory()
+    if (this.data.picking) {
+      this.closePicker()
       return
     }
     if (!this.data.pathKeys.length) return
     feedback.soft()
     const pathKeys = this.data.pathKeys.slice(0, -1)
-    const pathLabels = this.data.pathLabels.slice(0, -1)
-    this.apply(pathKeys, pathLabels, 'category', '')
-  },
-
-  jumpTo(e) {
-    const index = Number(e.currentTarget.dataset.index)
-    feedback.soft()
-    if (index < 0) {
-      this.apply([], [], 'category', '')
-      return
-    }
-    this.apply(
-      this.data.pathKeys.slice(0, index + 1),
-      this.data.pathLabels.slice(0, index + 1),
-      'category',
-      ''
-    )
+    this.apply(pathKeys, pathKeys.length)
   },
 
   reset() {
     feedback.soft()
-    this.apply([], [], 'category', '')
+    this.apply([], 0)
   },
 
   toggleFav() {

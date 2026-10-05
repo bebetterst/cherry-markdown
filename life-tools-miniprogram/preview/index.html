@@ -62,14 +62,19 @@
       </section>
 
       <section id="panel-relative" class="panel rel-panel">
-        <div class="rel-step-bar" id="rel-step-bar"></div>
-        <div class="rel-chain-wrap" id="rel-chain"></div>
         <div class="rel-outcome" id="rel-outcome"></div>
-        <div id="rel-sheet"></div>
+        <div class="rel-slot-panel">
+          <div class="rel-slot-head">
+            <div class="rel-slot-title">关系栏位</div>
+            <div class="rel-slot-sub" id="rel-step-hint"></div>
+          </div>
+          <div class="rel-slot-grid" id="rel-slots"></div>
+        </div>
+        <div id="rel-picker"></div>
         <div class="rel-footer">
           <button type="button" id="rel-share" class="rel-share-btn" disabled>分享称呼结果</button>
           <div class="rel-footer-links">
-            <button type="button" class="rel-link" id="rel-back">回退一步</button>
+            <button type="button" class="rel-link" id="rel-back">回退</button>
             <span class="rel-link-sep">·</span>
             <button type="button" class="rel-link" id="rel-reset">重新开始</button>
           </div>

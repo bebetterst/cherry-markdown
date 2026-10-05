@@ -1,95 +1,74 @@
 <view class="rel-page fade-rise">
-  <!-- 步骤条：一屏只做一件事 -->
-  <view class="step-bar">
-    <view
-      wx:for="{{4}}"
-      wx:key="*this"
-      class="step-dot {{index <= stepIndex ? 'done' : ''}} {{index === stepIndex && !atMaxDepth ? 'current' : ''}}"
-    ></view>
-  </view>
-
-  <scroll-view scroll-x class="chain-scroll" enhanced show-scrollbar="{{false}}">
-    <view class="chain">
-      <view class="chain-node {{pathKeys.length===0?'on':''}}" data-index="-1" bindtap="jumpTo">
-        <view class="node-avatar">我</view>
-        <text class="node-label">起点</text>
-      </view>
-      <block wx:for="{{pathLabels}}" wx:key="*this">
-        <view class="chain-line"></view>
-        <view class="chain-node {{index===pathLabels.length-1?'on':''}}" data-index="{{index}}" bindtap="jumpTo">
-          <view class="node-avatar">{{item[0]}}</view>
-          <text class="node-label">{{item}}</text>
-        </view>
-      </block>
-    </view>
-  </scroll-view>
-
-  <!-- 结果区：有称呼时突出展示，无称呼时轻提示 -->
+  <!-- 结果：称呼 + 地方别称 -->
   <view class="outcome {{resultTitle ? 'outcome--hit' : 'outcome--idle'}}">
     <view class="outcome-kicker">{{resultTitle ? '应该称呼' : '称呼结果'}}</view>
     <view class="outcome-title">{{resultTitle || '—'}}</view>
-    <view class="outcome-tip">{{resultTitle ? resultTip : stepPrompt}}</view>
+    <view wx:if="{{aliasText}}" class="outcome-alias">{{aliasText}}</view>
+    <view class="outcome-tip">{{resultTip || stepHint}}</view>
   </view>
 
-  <!-- 已达上限 -->
-  <view wx:if="{{atMaxDepth}}" class="sheet sheet--done">
-    <view class="sheet-title">关系已选满</view>
-    <view class="sheet-desc">最多支持 4 层。可点上方路径回退，或分享当前结果。</view>
-  </view>
-
-  <!-- 第一步：只展示 4 个关系大类（2×2），不堆长列表 -->
-  <view wx:elif="{{uiStage === 'category'}}" class="sheet">
-    <view class="sheet-head">
-      <view class="sheet-title">{{stepPrompt}}</view>
-      <view class="sheet-desc">选一类，再选具体是谁</view>
+  <!-- 4 栏位 · 两行，必须从第 1 栏起填 -->
+  <view class="slot-panel">
+    <view class="slot-head">
+      <text class="slot-title">关系栏位</text>
+      <text class="slot-sub">{{stepHint}}</text>
     </view>
-    <view class="cat-grid">
+    <view class="slot-grid">
       <view
-        class="cat-tile pressable"
-        wx:for="{{optionGroups}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="openGroup"
+        wx:for="{{slots}}"
+        wx:key="index"
+        class="slot pressable status-{{item.status}} {{item.isActive ? 'active' : ''}}"
+        data-index="{{item.index}}"
+        bindtap="tapSlot"
       >
-        <image class="cat-icon" src="{{item.icon}}" mode="aspectFit" />
-        <view class="cat-name">{{item.title}}</view>
-        <view class="cat-desc">{{item.desc}}</view>
+        <view class="slot-no">{{item.no}}</view>
+        <view class="slot-badge">{{item.badge}}</view>
+        <view class="slot-label">{{item.filled ? item.label : (item.locked ? '待解锁' : '点选')}}</view>
+        <view class="slot-hint">{{item.hint}}</view>
       </view>
     </view>
   </view>
 
-  <!-- 第二步：只展示当前大类下的 2～4 个选项 -->
-  <view wx:elif="{{uiStage === 'person' && activeGroup}}" class="sheet">
-    <view class="sheet-nav pressable" bindtap="backToCategory">
-      <text class="nav-back">‹</text>
-      <text>返回选关系大类</text>
+  <!-- 候选关系：点栏位后出现在下方 -->
+  <view wx:if="{{picking}}" class="picker sheet">
+    <view class="picker-bar">
+      <view class="picker-title">第 {{activeSlot + 1}} 栏 · 选关系</view>
+      <view class="picker-close pressable" bindtap="closePicker">收起</view>
     </view>
-    <view class="sheet-head">
-      <view class="sheet-title">{{activeGroup.title}}</view>
-      <view class="sheet-desc">点选具体一位</view>
-    </view>
-    <view class="person-grid {{activeGroup.items.length > 2 ? 'cols-2' : 'cols-1'}}">
-      <view
-        class="person-tile pressable"
-        wx:for="{{activeGroup.items}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        data-label="{{item.label}}"
-        bindtap="pickPerson"
-      >
-        <view class="person-name">{{item.label}}</view>
-        <view class="person-hint">{{item.hint}}</view>
+    <view class="picker-tip">已按当前人物性别过滤不合理选项</view>
+
+    <block wx:for="{{candidateGroups}}" wx:key="title">
+      <view class="opt-group">
+        <view class="opt-group-title">{{item.title}}</view>
+        <view class="opt-row">
+          <view
+            wx:for="{{item.items}}"
+            wx:for-item="opt"
+            wx:key="key"
+            class="opt-chip pressable {{pathKeys[activeSlot]===opt.key ? 'on' : ''}}"
+            data-key="{{opt.key}}"
+            data-label="{{opt.label}}"
+            bindtap="pickRelation"
+          >
+            <view class="opt-badge">{{opt.badge}}</view>
+            <view class="opt-text">
+              <view class="opt-name">{{opt.label}}</view>
+              <view class="opt-hint">{{opt.hint}}</view>
+            </view>
+          </view>
+        </view>
       </view>
-    </view>
+    </block>
   </view>
+
+  <view wx:else class="idle-tip">点上方栏位选择或修改关系；最多 4 层</view>
 
   <view class="bottom-space"></view>
 
-  <!-- 底部主操作：分享为主，次要操作为文字链 -->
   <view class="footer">
     <button class="footer-share" open-type="share" disabled="{{!canShare}}">分享称呼结果</button>
     <view class="footer-links">
-      <text class="link {{pathKeys.length ? '' : 'disabled'}}" bindtap="back">回退一步</text>
+      <text class="link {{pathKeys.length || picking ? '' : 'disabled'}}" bindtap="back">回退</text>
       <text class="link-sep">·</text>
       <text class="link" bindtap="reset">重新开始</text>
       <text class="link-sep">·</text>
