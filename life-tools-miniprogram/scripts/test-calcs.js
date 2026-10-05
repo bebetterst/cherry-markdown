@@ -47,6 +47,18 @@ assert.strictEqual(calcRelative(['兄', '父']).title, '爸爸')
 assert.strictEqual(calcRelative(['父', '父', '妻']).title, '奶奶')
 assert.strictEqual(calcRelative(['子', '妻', '夫']).title, '儿子')
 
+// 折叠后继续：爷爷的儿子 = 爸爸 / 伯伯 / 叔叔
+assert.strictEqual(calcRelative(['父', '父', '子']).title, '爸爸 / 伯伯 / 叔叔')
+assert.strictEqual(calcRelative(['父', '母', '夫', '子']).title, '爸爸 / 伯伯 / 叔叔')
+
+const { normalizePathKeys } = require('../utils/relative')
+const folded = normalizePathKeys(['父', '母', '夫'])
+assert.deepStrictEqual(folded.keys, ['父', '父'])
+assert.strictEqual(folded.title, '爷爷')
+assert.ok(folded.folded)
+const cont = normalizePathKeys(folded.keys.concat(['子']))
+assert.strictEqual(calcRelative(cont.keys).title, '爸爸 / 伯伯 / 叔叔')
+
 const { filterOptionsBySex, sexAtPath } = require('../utils/relative')
 assert.strictEqual(sexAtPath(['父']), 'male')
 assert.strictEqual(sexAtPath(['母']), 'female')

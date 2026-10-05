@@ -49,6 +49,10 @@
     子子: '孙子', 子女: '孙女', 女子: '外孙', 女女: '外孙女',
     子妻: '儿媳', 女夫: '女婿', 兄妻: '嫂子', 弟妻: '弟妹', 姐夫: '姐夫', 妹夫: '妹夫',
     父妻: '妈妈', 母夫: '爸爸',
+    父父子: '爸爸 / 伯伯 / 叔叔', 父父女: '姑妈',
+    父母子: '爸爸 / 伯伯 / 叔叔', 父母女: '姑妈',
+    母父子: '妈妈 / 舅舅', 母父女: '妈妈 / 姨妈',
+    母母子: '妈妈 / 舅舅', 母母女: '妈妈 / 姨妈',
     父兄子: '堂兄弟', 父弟子: '堂兄弟', 母兄子: '表兄弟', 母弟子: '表兄弟',
     父姐子: '表兄弟', 父妹子: '表兄弟', 母姐子: '表兄弟', 母妹子: '表兄弟',
     父兄女: '堂姐妹', 父弟女: '堂姐妹', 母兄女: '表姐妹', 母弟女: '表姐妹',
@@ -103,6 +107,7 @@
   function reducePath(pathKeys) {
     let keys = pathKeys.slice()
     let guard = 0
+    let steps = 0
     while (guard < 32) {
       guard += 1
       let hit = false
@@ -110,40 +115,63 @@
         const pair = keys[i] + keys[i + 1]
         if (!Object.prototype.hasOwnProperty.call(REDUCE_PAIR, pair)) continue
         keys = keys.slice(0, i).concat(REDUCE_PAIR[pair], keys.slice(i + 2))
+        steps += 1
         hit = true
         break
       }
       if (!hit) break
     }
-    return keys
+    return { keys, steps }
   }
 
-  function pathLabels(keys) {
-    return keys.map((k) => EDGE[k].label)
+  function progressiveLabels(keys) {
+    return keys.map((_, i) => {
+      const prefix = keys.slice(0, i + 1)
+      const title = REL_MAP[prefix.join('')]
+      if (title) return title
+      return EDGE[keys[i]].label
+    })
   }
 
   function formatChain(keys) {
     if (!keys.length) return '我'
-    return `我 → ${pathLabels(keys).join(' → ')}`
+    return `我 → ${progressiveLabels(keys).join(' → ')}`
+  }
+
+  function normalizePathKeys(pathKeys) {
+    const before = pathKeys.join('')
+    const { keys, steps } = reducePath(pathKeys)
+    const title = keys.length ? (REL_MAP[keys.join('')] || '') : '自己'
+    return {
+      keys,
+      folded: steps > 0 && keys.join('') !== before,
+      title
+    }
   }
 
   function relPreview(keys) {
     if (!keys.length) {
       return { title: '', tip: '从第 1 栏开始点选关系', aliasText: '', empty: true }
     }
-    const original = formatChain(keys)
-    const reduced = reducePath(keys)
+    const raw = `我 → ${keys.map((k) => EDGE[k].label).join(' → ')}`
+    const { keys: reduced, steps } = reducePath(keys)
+    const folded = steps > 0 && reduced.join('') !== keys.join('')
     if (!reduced.length) {
-      return { title: '自己', tip: `${original} → 自己`, aliasText: '地方 / 口语也叫：本人', empty: false }
+      return { title: '自己', tip: `${raw} → 已折叠为「自己」`, aliasText: '地方 / 口语也叫：本人', empty: false }
     }
     const title = REL_MAP[reduced.join('')] || REL_MAP[keys.join('')]
-    const tipExtra = reduced.join('') !== keys.join('') ? `（等同于：${formatChain(reduced)}）` : ''
-    if (!title) return { title: '暂未收录', tip: `${original}${tipExtra}`, aliasText: '', empty: false }
-    const aliases = ALIASES[title] || []
+    if (!title) {
+      return { title: '暂未收录', tip: formatChain(reduced), aliasText: '', empty: false }
+    }
+    const ambiguous = title.indexOf(' / ') >= 0
+    let tip = folded
+      ? `${raw} → 已折叠为「${title}」，后续从此人继续算`
+      : formatChain(reduced)
+    if (ambiguous) tip += '。存在多种可能，请结合家谱实际情况判断'
     return {
       title,
-      tip: `${original}${tipExtra}`,
-      aliasText: aliases.length ? `地方 / 口语也叫：${aliases.join('、')}` : '',
+      tip,
+      aliasText: ambiguous ? `可能称呼：${title}` : ((ALIASES[title] || []).length ? `地方 / 口语也叫：${ALIASES[title].join('、')}` : ''),
       empty: false
     }
   }
@@ -239,10 +267,11 @@
     slotsEl.innerHTML = Array.from({ length: SLOT_COUNT }, (_, i) => {
       const filled = i < keys.length
       const locked = i > keys.length
+      const labels = progressiveLabels(keys)
       const status = locked ? 'locked' : filled ? 'filled' : 'next'
       const active = state.activeSlot === i ? 'active' : ''
-      const label = filled ? EDGE[keys[i]].label : locked ? '待解锁' : '点选'
-      const badge = filled ? EDGE[keys[i]].label[0] : String(i + 1)
+      const label = filled ? labels[i] : locked ? '待解锁' : '点选'
+      const badge = filled ? (labels[i].split(' / ')[0][0] || String(i + 1)) : String(i + 1)
       const sub = locked ? '先填前面' : filled ? '可改选' : i === keys.length ? '点此选择' : ''
       return `<button type="button" class="rel-slot status-${status} ${active}" data-i="${i}">
         <span class="rel-slot-no">${i + 1}</span>
@@ -300,12 +329,13 @@
     })
     picker.querySelectorAll('.rel-opt-chip').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const next = keys.slice(0, state.activeSlot)
-        next.push(btn.dataset.key)
-        state.relKeys = next
-        state.activeSlot = next.length < SLOT_COUNT ? next.length : -1
-        renderRelative()
-      })
+          const next = keys.slice(0, state.activeSlot)
+          next.push(btn.dataset.key)
+          const norm = normalizePathKeys(next)
+          state.relKeys = norm.keys
+          state.activeSlot = state.relKeys.length < SLOT_COUNT ? state.relKeys.length : -1
+          renderRelative()
+        })
     })
   }
 

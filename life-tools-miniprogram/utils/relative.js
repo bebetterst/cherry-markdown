@@ -63,10 +63,10 @@ const MAP = {
   姐女: '外甥女',
   妹子: '外甥',
   妹女: '外甥女',
-  父子: '兄弟',
-  父女: '姐妹',
-  母子: '兄弟',
-  母女: '姐妹',
+  父子: '自己 / 兄弟',
+  父女: '自己 / 姐妹',
+  母子: '自己 / 兄弟',
+  母女: '自己 / 姐妹',
   子子: '孙子',
   子女: '孙女',
   女子: '外孙',
@@ -117,10 +117,29 @@ const MAP = {
   母母父: '外曾外祖父',
   母母母: '外曾外祖母',
 
-  父父子: '堂兄弟',
-  父父女: '堂姐妹',
-  父母子: '堂兄弟',
-  父母女: '堂姐妹',
+  // 祖辈的子女：可能是父母本人，也可能是伯叔姑舅姨（歧义并列）
+  父父子: '爸爸 / 伯伯 / 叔叔',
+  父父女: '姑妈',
+  父母子: '爸爸 / 伯伯 / 叔叔',
+  父母女: '姑妈',
+  母父子: '妈妈 / 舅舅',
+  母父女: '妈妈 / 姨妈',
+  母母子: '妈妈 / 舅舅',
+  母母女: '妈妈 / 姨妈',
+
+  // 从「祖辈的子女」再下一辈：可能是自己/同胞，也可能是堂表
+  父父子子: '自己 / 兄弟 / 堂兄弟',
+  父父子女: '自己 / 姐妹 / 堂姐妹',
+  父父女子: '自己 / 兄弟 / 表兄弟',
+  父父女女: '自己 / 姐妹 / 表姐妹',
+  父母子子: '自己 / 兄弟 / 堂兄弟',
+  父母子女: '自己 / 姐妹 / 堂姐妹',
+  母父子子: '自己 / 兄弟 / 表兄弟',
+  母父子女: '自己 / 姐妹 / 表姐妹',
+  母母子子: '自己 / 兄弟 / 表兄弟',
+  母母子女: '自己 / 姐妹 / 表姐妹',
+
+  // 父/母之兄弟的子女 = 堂表（无歧义）
   父兄子: '堂兄弟',
   父兄女: '堂姐妹',
   父弟子: '堂兄弟',
@@ -130,10 +149,6 @@ const MAP = {
   父妹子: '表兄弟',
   父妹女: '表姐妹',
 
-  母父子: '表兄弟',
-  母父女: '表姐妹',
-  母母子: '表兄弟',
-  母母女: '表姐妹',
   母兄子: '表兄弟',
   母兄女: '表姐妹',
   母弟子: '表兄弟',
@@ -227,12 +242,9 @@ const MAP = {
   妹夫女: '外甥女',
 
   // —— 4 层：堂表再下一辈 / 高祖等常见 ——
+  // 注：父父子子 / 父父女子 等歧义项已在上方定义为「自己/同胞/堂表」，此处不重复覆盖
   父父父父: '高祖父',
   父父父母: '高祖母',
-  父父子子: '堂侄',
-  父父子女: '堂侄女',
-  父父女子: '堂侄',
-  父父女女: '堂侄女',
   父兄子子: '堂侄',
   父兄子女: '堂侄女',
   父弟子子: '堂侄',
@@ -255,8 +267,14 @@ const MAP = {
   母妹子子: '表侄',
   母妹子女: '表侄女',
 
-  父父子妻: '堂侄媳',
-  父父女夫: '堂侄女婿',
+  父父子妻: '妈妈 / 伯娘 / 婶婶',
+  父父女夫: '姑父',
+  父母子妻: '妈妈 / 伯娘 / 婶婶',
+  父母女夫: '姑父',
+  母父子妻: '妈妈 / 舅妈',
+  母父女夫: '姨父',
+  母母子妻: '妈妈 / 舅妈',
+  母母女夫: '姨父',
   父兄子妻: '堂侄媳',
   父兄女夫: '堂侄女婿',
   父弟子妻: '堂侄媳',
@@ -424,7 +442,54 @@ function pathLabels(pathKeys) {
   return (pathKeys || []).map((k) => (EDGE[k] ? EDGE[k].label : k))
 }
 
+/** 直接查词典（不做归约），供已归一化路径的栏位展示 */
+function lookupTitle(pathKeys) {
+  if (!pathKeys || !pathKeys.length) return ''
+  return MAP[pathKeys.join('')] || ''
+}
+
+/**
+ * 栏位展示名：优先用「到该层为止」的称呼（如 父父 → 爷爷），
+ * 歧义称呼保留完整「爸爸 / 伯伯 / 叔叔」
+ */
+function progressiveLabels(pathKeys) {
+  return (pathKeys || []).map((_, i) => {
+    const prefix = pathKeys.slice(0, i + 1)
+    const title = lookupTitle(prefix)
+    if (title && title !== '暂未收录' && title !== '关系过远') return title
+    const k = pathKeys[i]
+    return EDGE[k] ? EDGE[k].label : k
+  })
+}
+
+/**
+ * 选完一层后归一化：折叠发生则用归约链替换原链，后续从此人继续算
+ * @returns {{ keys: string[], folded: boolean, title: string, beforeLen: number }}
+ */
+function normalizePathKeys(pathKeys) {
+  const beforeLen = (pathKeys || []).length
+  const reduced = reducePath(pathKeys || [])
+  if (reduced.self) {
+    return { keys: [], folded: beforeLen > 0, title: '自己', beforeLen }
+  }
+  const folded = reduced.steps.length > 0 && reduced.keys.join('') !== (pathKeys || []).join('')
+  const title = lookupTitle(reduced.keys) || ''
+  return { keys: reduced.keys.slice(), folded, title, beforeLen }
+}
+
 function aliasesOf(title) {
+  if (!title) return []
+  if (title.indexOf(' / ') >= 0) {
+    const parts = title.split(' / ')
+    const extra = []
+    parts.forEach((p) => {
+      const list = ALIASES[p] || []
+      list.forEach((a) => {
+        if (extra.indexOf(a) < 0 && parts.indexOf(a) < 0) extra.push(a)
+      })
+    })
+    return extra
+  }
   const list = ALIASES[title]
   return list ? list.slice() : []
 }
@@ -471,13 +536,7 @@ const REDUCE_PAIR = {
   夫子: ['子'],
   夫女: ['女'],
   妻子: ['子'],
-  妻女: ['女'],
-
-  // 父母的子女 = 自己或兄弟姐妹（长幼无法区分时落到「兄弟/姐妹」由 MAP；这里缩成「我」旁系需保留兄妹键）
-  // 父子/父女/母子/母女 已在 MAP，不在此抹掉
-
-  // 祖辈配偶互指（也可由父妻/母夫两步得到，显式写出更稳）
-  // 例：父父妻 → 在扫描到 父妻 前会先匹配更短；迭代即可
+  妻女: ['女']
 }
 
 /** 归约到「自己」时，若路径含子女父母反向，提示性别歧义 */
@@ -515,7 +574,8 @@ function reducePath(pathKeys) {
 
 function formatChain(keys) {
   if (!keys.length) return '我'
-  return `我 → ${pathLabels(keys).join(' → ')}`
+  const labels = progressiveLabels(keys)
+  return `我 → ${labels.join(' → ')}`
 }
 
 function calcRelative(pathKeys) {
@@ -527,6 +587,9 @@ function calcRelative(pathKeys) {
       tip: '从第 1 栏开始点选关系',
       empty: true,
       reducedKeys: [],
+      folded: false,
+      ambiguous: false,
+      continueFrom: '',
       shareText: '好算生活｜亲戚称呼计算'
     }
   }
@@ -538,13 +601,17 @@ function calcRelative(pathKeys) {
       tip: '暂支持 4 层以内常见称呼。',
       empty: false,
       reducedKeys: pathKeys.slice(),
+      folded: false,
+      ambiguous: false,
+      continueFrom: '',
       shareText: '【好算生活】亲戚称呼计算'
     }
   }
 
-  const originalChain = formatChain(pathKeys)
+  const rawChain = `我 → ${pathLabels(pathKeys).join(' → ')}`
   const reduced = reducePath(pathKeys)
   const lookupKeys = reduced.keys
+  const folded = reduced.steps.length > 0 && lookupKeys.join('') !== pathKeys.join('')
   const viaChildParent = reduced.steps.some((s) => s.viaChildParent)
 
   // 归约到自己
@@ -558,36 +625,50 @@ function calcRelative(pathKeys) {
       aliases: ['本人', '我'],
       aliasText: genderTip ? `说明：${genderTip.replace(/[（）]/g, '')}` : '地方 / 口语也叫：本人',
       tip: genderTip
-        ? `${originalChain} → 自己${genderTip}`
-        : `${originalChain} → 自己`,
+        ? `${rawChain} → 已折叠为「自己」${genderTip}`
+        : `${rawChain} → 已折叠为「自己」`,
       empty: false,
       reducedKeys: [],
-      shareText: `【好算生活】这段关系指向「自己」`
+      folded: true,
+      ambiguous: false,
+      continueFrom: '自己',
+      shareText: '【好算生活】这段关系指向「自己」'
     }
   }
 
-  // 先查归约后的链，再回退查原始链
   const title = MAP[lookupKeys.join('')] || MAP[pathKeys.join('')]
   const usedKeys = MAP[lookupKeys.join('')] ? lookupKeys : pathKeys
-  const reducedChain = formatChain(lookupKeys)
-  const tipExtra =
-    lookupKeys.join('') !== pathKeys.join('')
-      ? `（等同于：${reducedChain}）`
-      : ''
+  const niceChain = formatChain(usedKeys)
+  const ambiguous = !!(title && title.indexOf(' / ') >= 0)
+  const continueFrom = title && title !== '暂未收录' ? title.split(' / ')[0] : ''
+
+  let tip = folded
+    ? `${rawChain} → 已折叠为「${title || niceChain}」，后续从此人继续算`
+    : niceChain
+  if (ambiguous) {
+    tip += '。存在多种可能，请结合家谱实际情况判断'
+  }
 
   if (title) {
     const aliases = aliasesOf(title)
-    const aliasText = aliases.length ? `地方 / 口语也叫：${aliases.join('、')}` : ''
+    let aliasText = ''
+    if (ambiguous) {
+      aliasText = `可能称呼：${title}`
+      if (aliases.length) aliasText += `；口语也叫 ${aliases.slice(0, 4).join('、')}`
+    } else if (aliases.length) {
+      aliasText = `地方 / 口语也叫：${aliases.join('、')}`
+    }
     return {
       title,
       aliases,
       aliasText,
-      tip: `${originalChain}${tipExtra}`,
+      tip,
       empty: false,
       reducedKeys: usedKeys.slice(),
-      shareText: aliases.length
-        ? `【好算生活】这段亲戚应叫「${title}」（也叫 ${aliases.slice(0, 2).join('、')}）`
-        : `【好算生活】这段亲戚关系应该叫「${title}」`
+      folded,
+      ambiguous,
+      continueFrom,
+      shareText: `【好算生活】这段亲戚应叫「${title}」`
     }
   }
 
@@ -595,9 +676,12 @@ function calcRelative(pathKeys) {
     title: '暂未收录',
     aliases: [],
     aliasText: '',
-    tip: `${originalChain}${tipExtra}。这对组合暂无标准简表，可改选近亲路径。`,
+    tip: `${folded ? tip : niceChain}。这对组合暂无标准简表，可改选近亲路径。`,
     empty: false,
     reducedKeys: lookupKeys.slice(),
+    folded,
+    ambiguous: false,
+    continueFrom: '',
     shareText: '【好算生活】亲戚称呼计算'
   }
 }
@@ -649,6 +733,9 @@ module.exports = {
   filterOptionsBySex,
   getCandidateGroups,
   pathLabels,
+  progressiveLabels,
+  lookupTitle,
+  normalizePathKeys,
   reducePath,
   calcRelative
 }
