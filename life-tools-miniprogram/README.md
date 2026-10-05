@@ -36,8 +36,10 @@ module.exports = {
 
 ```bash
 cd life-tools-miniprogram/preview
-python3 -m http.server 8765
-# 打开 http://127.0.0.1:8765
+# 默认 8788（避免与常见 8765 占用冲突）；也可: ./start.sh 8899
+./start.sh
+# 打开 http://127.0.0.1:8788
+# 自动演示: http://127.0.0.1:8788/?demo=1
 ```
 
 ## 免责声明
