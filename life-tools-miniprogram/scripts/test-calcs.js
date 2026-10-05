@@ -37,6 +37,16 @@ assert.strictEqual(calcRelative(['妻', '父']).title, '岳父')
 assert.strictEqual(calcRelative(['父', '兄', '子']).title, '堂兄弟')
 assert.ok(calcRelative(['母', '兄']).aliasText.includes('舅父'))
 
+// 关系链归约：爸爸的妈妈的丈夫 = 爷爷
+assert.strictEqual(calcRelative(['父', '母', '夫']).title, '爷爷')
+assert.strictEqual(calcRelative(['母', '父', '妻']).title, '外婆')
+assert.strictEqual(calcRelative(['父', '妻']).title, '妈妈')
+assert.strictEqual(calcRelative(['母', '夫']).title, '爸爸')
+assert.strictEqual(calcRelative(['夫', '妻']).title, '自己')
+assert.strictEqual(calcRelative(['兄', '父']).title, '爸爸')
+assert.strictEqual(calcRelative(['父', '父', '妻']).title, '奶奶')
+assert.strictEqual(calcRelative(['子', '妻', '夫']).title, '儿子')
+
 const { filterOptionsBySex, sexAtPath } = require('../utils/relative')
 assert.strictEqual(sexAtPath(['父']), 'male')
 assert.strictEqual(sexAtPath(['母']), 'female')

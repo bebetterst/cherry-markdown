@@ -48,9 +48,11 @@
     姐子: '外甥', 姐女: '外甥女', 妹子: '外甥', 妹女: '外甥女',
     子子: '孙子', 子女: '孙女', 女子: '外孙', 女女: '外孙女',
     子妻: '儿媳', 女夫: '女婿', 兄妻: '嫂子', 弟妻: '弟妹', 姐夫: '姐夫', 妹夫: '妹夫',
+    父妻: '妈妈', 母夫: '爸爸',
     父兄子: '堂兄弟', 父弟子: '堂兄弟', 母兄子: '表兄弟', 母弟子: '表兄弟',
     父姐子: '表兄弟', 父妹子: '表兄弟', 母姐子: '表兄弟', 母妹子: '表兄弟',
-    父兄女: '堂姐妹', 父弟女: '堂姐妹', 母兄女: '表姐妹', 母弟女: '表姐妹'
+    父兄女: '堂姐妹', 父弟女: '堂姐妹', 母兄女: '表姐妹', 母弟女: '表姐妹',
+    父父兄: '伯祖父', 父父弟: '叔祖父'
   }
 
   const ALIASES = {
@@ -88,18 +90,59 @@
     })).filter((g) => g.items.length)
   }
 
+  const REDUCE_PAIR = {
+    母夫: ['父'], 父妻: ['母'], 夫妻: [], 妻夫: [],
+    子父: [], 女父: [], 子母: [], 女母: [],
+    兄父: ['父'], 弟父: ['父'], 姐父: ['父'], 妹父: ['父'],
+    兄母: ['母'], 弟母: ['母'], 姐母: ['母'], 妹母: ['母'],
+    子兄: ['子'], 子弟: ['子'], 子姐: ['女'], 子妹: ['女'],
+    女兄: ['子'], 女弟: ['子'], 女姐: ['女'], 女妹: ['女'],
+    夫子: ['子'], 夫女: ['女'], 妻子: ['子'], 妻女: ['女']
+  }
+
+  function reducePath(pathKeys) {
+    let keys = pathKeys.slice()
+    let guard = 0
+    while (guard < 32) {
+      guard += 1
+      let hit = false
+      for (let i = 0; i < keys.length - 1; i += 1) {
+        const pair = keys[i] + keys[i + 1]
+        if (!Object.prototype.hasOwnProperty.call(REDUCE_PAIR, pair)) continue
+        keys = keys.slice(0, i).concat(REDUCE_PAIR[pair], keys.slice(i + 2))
+        hit = true
+        break
+      }
+      if (!hit) break
+    }
+    return keys
+  }
+
+  function pathLabels(keys) {
+    return keys.map((k) => EDGE[k].label)
+  }
+
+  function formatChain(keys) {
+    if (!keys.length) return '我'
+    return `我 → ${pathLabels(keys).join(' → ')}`
+  }
+
   function relPreview(keys) {
     if (!keys.length) {
       return { title: '', tip: '从第 1 栏开始点选关系', aliasText: '', empty: true }
     }
-    const labels = keys.map((k) => EDGE[k].label)
-    const chain = `我 → ${labels.join(' → ')}`
-    const title = REL_MAP[keys.join('')]
-    if (!title) return { title: '暂未收录', tip: chain, aliasText: '', empty: false }
+    const original = formatChain(keys)
+    const reduced = reducePath(keys)
+    if (!reduced.length) {
+      return { title: '自己', tip: `${original} → 自己`, aliasText: '地方 / 口语也叫：本人', empty: false }
+    }
+    const title = REL_MAP[reduced.join('')] || REL_MAP[keys.join('')]
+    const tipExtra = reduced.join('') !== keys.join('') ? `（等同于：${formatChain(reduced)}）` : ''
+    if (!title) return { title: '暂未收录', tip: `${original}${tipExtra}`, aliasText: '', empty: false }
     const aliases = ALIASES[title] || []
     return {
       title,
-      tip: chain,
+      tip: `${original}${tipExtra}`,
       aliasText: aliases.length ? `地方 / 口语也叫：${aliases.join('、')}` : '',
       empty: false
     }
