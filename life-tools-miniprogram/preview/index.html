@@ -22,20 +22,28 @@
 
     <main>
       <section id="panel-tools" class="panel active">
-        <div class="search">搜工具：房贷、个税、退休、亲戚称呼…</div>
+        <div class="search"><span>⌕</span><span>搜索房贷、个税、退休、亲戚称呼…</span></div>
         <div class="chips">
           <span>房贷计算</span><span>个税计算</span><span>退休年龄</span><span>亲戚称呼</span>
+        </div>
+        <div class="continue">
+          <div><div class="kicker">继续上次</div><strong>🏠 房贷计算器</strong></div>
+          <div style="color:var(--brand-2);font-weight:600">打开 ›</div>
+        </div>
+        <div class="day-peek">
+          <div><div class="kicker">最近倒数日</div><strong>📚 高考</strong></div>
+          <div class="count">128<span class="unit">天后</span></div>
         </div>
         <h2>热门工具</h2>
         <div class="grid" id="tool-grid"></div>
       </section>
 
       <section id="panel-countdown" class="panel">
-        <h2>倒数日</h2>
+        <div class="focus" id="cd-focus"></div>
         <form id="cd-form" class="card form">
-          <label>标题 <input id="cd-title" value="高考" /></label>
+          <label>标题 <input id="cd-title" value="旅行" /></label>
           <label>日期 <input id="cd-date" type="date" /></label>
-          <button type="submit">添加</button>
+          <button type="submit">添加倒数日</button>
         </form>
         <div id="cd-list"></div>
       </section>

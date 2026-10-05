@@ -1,5 +1,7 @@
 const { tools, categories, hotKeywords } = require('../../config/tools')
 const storage = require('../../utils/storage')
+const { daysBetween, todayStr } = require('../../utils/format')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
@@ -8,11 +10,37 @@ Page({
     categories,
     hotKeywords,
     hotTools: [],
-    filteredTools: []
+    filteredTools: [],
+    continueTool: null,
+    nearestDay: null
   },
 
   onShow() {
     this.applyFilter()
+    this.loadRetentionBlocks()
+  },
+
+  loadRetentionBlocks() {
+    const map = Object.fromEntries(tools.map((t) => [t.id, t]))
+    const history = storage.get(storage.KEYS.history, [])
+    const continueTool = history.length ? map[history[0].id] || null : null
+
+    const today = todayStr()
+    const countdowns = storage.getCountdowns()
+      .map((item) => {
+        const delta = daysBetween(today, item.date)
+        return { ...item, delta, abs: Math.abs(delta ?? 0) }
+      })
+      .sort((a, b) => {
+        const ax = a.delta < 0 ? 100000 + a.abs : a.abs
+        const bx = b.delta < 0 ? 100000 + b.abs : b.abs
+        return ax - bx
+      })
+
+    this.setData({
+      continueTool,
+      nearestDay: countdowns[0] || null
+    })
   },
 
   applyFilter() {
@@ -32,13 +60,23 @@ Page({
     this.setData({ keyword: e.detail.value }, () => this.applyFilter())
   },
 
+  clearSearch() {
+    this.setData({ keyword: '' }, () => this.applyFilter())
+  },
+
   onChip(e) {
+    feedback.soft()
     const word = e.currentTarget.dataset.word
     this.setData({ keyword: word }, () => this.applyFilter())
   },
 
   onCategory(e) {
+    feedback.soft()
     this.setData({ category: e.currentTarget.dataset.id, keyword: '' }, () => this.applyFilter())
+  },
+
+  goCountdown() {
+    wx.switchTab({ url: '/pages/countdown/index' })
   },
 
   goTool(e) {

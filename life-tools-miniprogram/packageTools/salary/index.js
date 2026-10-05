@@ -1,6 +1,7 @@
 const { calcSalary } = require('../../utils/salary')
 const { money } = require('../../utils/format')
 const storage = require('../../utils/storage')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
@@ -25,7 +26,7 @@ Page({
       special: this.data.special
     })
     if (!raw) {
-      wx.showToast({ title: '请检查输入', icon: 'none' })
+      feedback.warn('请检查输入')
       return
     }
     const result = {
@@ -34,15 +35,20 @@ Page({
       annualText: money(raw.annualTax)
     }
     storage.addHistory({ id: 'salary', path: '/packageTools/salary/index' })
-    this.setData({
-      result,
-      shareTitle: `【好算生活】税后月收入约 ${result.netText} 元`
-    })
+    this.setData({ result: null })
+    setTimeout(() => {
+      this.setData({
+        result,
+        shareTitle: `【好算生活】税后月收入约 ${result.netText} 元`
+      })
+      feedback.success('算好了')
+    }, 16)
   },
 
   toggleFav() {
     const fav = storage.toggleFavorite('salary')
     this.setData({ fav })
+    feedback.success(fav ? '已收藏' : '已取消')
   },
 
   onShareAppMessage() {

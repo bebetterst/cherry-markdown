@@ -1,5 +1,9 @@
-<view class="container">
-  <view class="card form">
+<view class="container fade-rise">
+  <view class="page-intro">
+    <view class="page-kicker">好算生活</view>
+    <view class="page-title">日期间隔</view>
+  </view>
+  <view class="form-shell">
     <view class="field">
       <text class="field-label">开始日期</text>
       <picker mode="date" value="{{start}}" bindchange="onStart">
@@ -14,14 +18,13 @@
     </view>
     <button class="btn-primary" bindtap="calc">计算间隔</button>
   </view>
-
-  <view wx:if="{{resultText}}" class="result-box">
+  <view wx:if="{{resultText}}" class="result-box result-pop">
     <view class="result-label">相差天数</view>
     <view class="result-value">{{resultText}}</view>
-    <view class="result-meta">也可去「倒数日」记录这个日子</view>
+    <view class="result-meta">也可记入「倒数日」，每天回来看看</view>
   </view>
   <view class="actions" wx:if="{{resultText}}">
-    <button class="btn-ghost" bindtap="goCountdown">记入倒数日</button>
-    <button class="btn-ghost" open-type="share">分享</button>
+    <button class="btn-share action" bindtap="goCountdown">记入倒数日</button>
+    <button class="btn-ghost action" open-type="share">分享</button>
   </view>
 </view>

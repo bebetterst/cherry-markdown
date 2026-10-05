@@ -1,6 +1,7 @@
 const { calcMortgage } = require('../../utils/mortgage')
 const { money } = require('../../utils/format')
 const storage = require('../../utils/storage')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
@@ -20,7 +21,10 @@ Page({
   onAmount(e) { this.setData({ amountWan: e.detail.value }) },
   onYears(e) { this.setData({ years: e.detail.value }) },
   onRate(e) { this.setData({ rate: e.detail.value }) },
-  onMethod(e) { this.setData({ method: e.currentTarget.dataset.m }) },
+  onMethod(e) {
+    feedback.soft()
+    this.setData({ method: e.currentTarget.dataset.m })
+  },
 
   calc() {
     const raw = calcMortgage({
@@ -30,7 +34,7 @@ Page({
       method: this.data.method
     })
     if (!raw) {
-      wx.showToast({ title: '请检查输入', icon: 'none' })
+      feedback.warn('请检查输入')
       return
     }
     const result = {
@@ -42,15 +46,21 @@ Page({
     }
     storage.addHistory({ id: 'mortgage', path: '/packageTools/mortgage/index' })
     this.setData({
-      result,
-      shareTitle: `【好算生活】房贷月供约 ${result.monthlyText} 元（${raw.methodLabel}）`
+      result: null
     })
+    setTimeout(() => {
+      this.setData({
+        result,
+        shareTitle: `【好算生活】房贷月供约 ${result.monthlyText} 元（${raw.methodLabel}）`
+      })
+      feedback.success('算好了')
+    }, 16)
   },
 
   toggleFav() {
     const fav = storage.toggleFavorite('mortgage')
     this.setData({ fav })
-    wx.showToast({ title: fav ? '已收藏' : '已取消', icon: 'none' })
+    feedback.success(fav ? '已收藏' : '已取消')
   },
 
   onShareAppMessage() {

@@ -26,16 +26,16 @@
   },
   "window": {
     "navigationBarTitleText": "好算生活",
-    "navigationBarBackgroundColor": "#0F3D2E",
+    "navigationBarBackgroundColor": "#0B3D32",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#F3F6F2",
+    "backgroundColor": "#EEF4F0",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#6B7C72",
-    "selectedColor": "#0F3D2E",
+    "color": "#6A7A72",
+    "selectedColor": "#0B3D32",
     "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",

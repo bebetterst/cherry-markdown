@@ -1,5 +1,6 @@
 const { calcRetirement } = require('../../utils/retirement')
 const storage = require('../../utils/storage')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
@@ -14,8 +15,14 @@ Page({
 
   onShow() { this.setData({ fav: storage.isFavorite('retirement') }) },
   onBirth(e) { this.setData({ birth: e.detail.value.slice(0, 7) }) },
-  onGender(e) { this.setData({ gender: e.currentTarget.dataset.g }) },
-  onFemaleType(e) { this.setData({ femaleType: e.currentTarget.dataset.t }) },
+  onGender(e) {
+    feedback.soft()
+    this.setData({ gender: e.currentTarget.dataset.g })
+  },
+  onFemaleType(e) {
+    feedback.soft()
+    this.setData({ femaleType: e.currentTarget.dataset.t })
+  },
 
   calc() {
     const result = calcRetirement({
@@ -24,18 +31,24 @@ Page({
       femaleType: this.data.femaleType
     })
     if (!result) {
-      wx.showToast({ title: '请选择出生年月', icon: 'none' })
+      feedback.warn('请选择出生年月')
       return
     }
     storage.addHistory({ id: 'retirement', path: '/packageTools/retirement/index' })
-    this.setData({
-      result,
-      shareTitle: `【好算生活】预计 ${result.retireAt} 退休（约${result.retireAgeText}）`
-    })
+    this.setData({ result: null })
+    setTimeout(() => {
+      this.setData({
+        result,
+        shareTitle: `【好算生活】预计 ${result.retireAt} 退休（约${result.retireAgeText}）`
+      })
+      feedback.success('查询完成')
+    }, 16)
   },
 
   toggleFav() {
-    this.setData({ fav: storage.toggleFavorite('retirement') })
+    const fav = storage.toggleFavorite('retirement')
+    this.setData({ fav })
+    feedback.success(fav ? '已收藏' : '已取消')
   },
 
   onShareAppMessage() {

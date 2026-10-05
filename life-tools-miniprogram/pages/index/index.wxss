@@ -1,58 +1,152 @@
 .hero {
-  padding: 12rpx 8rpx 8rpx;
+  position: relative;
+  padding: 18rpx 8rpx 8rpx;
+  overflow: hidden;
 }
 
-.search {
+.hero-glow {
+  position: absolute;
+  right: -40rpx;
+  top: -60rpx;
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 161, 6, 0.22), transparent 68%);
+  pointer-events: none;
+}
+
+.search-shell {
   margin-top: 28rpx;
-  padding: 8rpx 8rpx;
+  min-height: 96rpx;
+  padding: 0 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid var(--line);
+  border-radius: 999rpx;
+  box-shadow: var(--shadow);
+}
+
+.search-icon {
+  color: var(--muted);
+  font-size: 34rpx;
 }
 
 .search-input {
-  height: 84rpx;
-  padding: 0 28rpx;
-  background: #f7faf7;
-  border-radius: 14rpx;
+  flex: 1;
+  height: 96rpx;
+  font-size: 28rpx;
+}
+
+.search-ph {
+  color: #92a39a;
+}
+
+.search-clear {
+  color: var(--brand-2);
+  font-size: 24rpx;
+  padding: 8rpx 10rpx;
+}
+
+.chips-scroll {
+  margin-top: 20rpx;
+  white-space: nowrap;
 }
 
 .chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: inline-flex;
   gap: 12rpx;
-  margin-top: 20rpx;
+  padding-bottom: 4rpx;
 }
 
 .chip {
-  padding: 10rpx 20rpx;
+  display: inline-flex;
+  padding: 12rpx 22rpx;
   border-radius: 999rpx;
-  background: rgba(15, 61, 46, 0.08);
+  background: rgba(11, 61, 50, 0.07);
   color: var(--brand);
+  font-size: 22rpx;
+  font-weight: 550;
+}
+
+.continue,
+.day-peek {
+  margin-top: 22rpx;
+  padding: 22rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.continue-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.continue-kicker {
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.continue-name,
+.day-peek-title {
+  margin-top: 4rpx;
+  font-size: 30rpx;
+  font-weight: 680;
+  color: var(--brand);
+}
+
+.continue-cta {
+  color: var(--brand-2);
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.day-peek-count {
+  text-align: right;
+  color: var(--accent-ink);
+}
+
+.day-peek-count .num {
+  display: block;
+  font-size: 52rpx;
+  font-weight: 760;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.day-peek-count .unit {
   font-size: 22rpx;
 }
 
 .tool-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18rpx;
+  gap: 16rpx;
 }
 
 .tool-item {
-  padding: 24rpx;
-  min-height: 200rpx;
-}
-
-.tool-emoji {
-  font-size: 40rpx;
+  padding: 24rpx 22rpx 26rpx;
+  min-height: 210rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  animation: fadeRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .tool-name {
-  margin-top: 12rpx;
+  margin-top: 16rpx;
   font-size: 30rpx;
-  font-weight: 650;
+  font-weight: 680;
   color: var(--brand);
 }
 
 .tool-desc {
-  margin-top: 6rpx;
+  margin-top: 8rpx;
   color: var(--muted);
   font-size: 22rpx;
   line-height: 1.4;
@@ -62,14 +156,17 @@
   margin-top: 18rpx;
   display: flex;
   flex-direction: column;
-  gap: 14rpx;
+  gap: 12rpx;
 }
 
 .list-item {
   display: flex;
   align-items: center;
   gap: 18rpx;
-  padding: 22rpx 24rpx;
+  padding: 22rpx 22rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid var(--line);
+  border-radius: var(--radius);
 }
 
 .list-main {
@@ -77,7 +174,15 @@
 }
 
 .arrow {
-  color: var(--muted);
+  color: #9aada3;
   font-size: 40rpx;
   line-height: 1;
 }
+
+.tint-mortgage { background: #e5f2ec; }
+.tint-salary { background: #e8eef8; }
+.tint-retirement { background: #f3ebe2; }
+.tint-relative { background: #f8e9ef; }
+.tint-unit { background: #e8f3f5; }
+.tint-dateGap { background: #f4efe2; }
+.tint-countdown { background: #fff3d1; }

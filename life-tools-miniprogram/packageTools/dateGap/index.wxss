@@ -1,4 +1,2 @@
-.form { padding: 28rpx; }
+@import "../_shared.wxss";
 .picker { display:flex; align-items:center; }
-.actions { margin-top: 20rpx; display:flex; gap:12rpx; }
-.actions button { flex:1; }

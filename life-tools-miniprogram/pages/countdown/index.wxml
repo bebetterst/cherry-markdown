@@ -1,35 +1,55 @@
-<view class="container">
-  <view class="hero">
+<view class="container fade-rise">
+  <view wx:if="{{focus}}" class="focus-hero">
+    <view class="focus-kicker">好算生活 · 倒数日</view>
+    <view class="focus-title">{{focus.emoji}} {{focus.title}}</view>
+    <view class="focus-count {{focus.delta < 0 ? 'passed' : ''}} pulse-soft">
+      <text class="num">{{focus.abs}}</text>
+      <text class="unit">{{focus.delta < 0 ? '天前' : (focus.delta === 0 ? '就是今天' : '天后')}}</text>
+    </view>
+    <view class="focus-date">{{focus.date}}</view>
+  </view>
+
+  <view wx:else class="hero">
     <view class="brand-mark">倒数日</view>
     <view class="brand-sub">把想奔赴的日子，放在眼前</view>
   </view>
 
-  <button class="btn-primary add-btn" bindtap="onAdd">新建倒数日</button>
-
-  <view wx:if="{{!list.length}}" class="empty">还没有倒数日，先记下第一个重要日子吧</view>
-
   <view class="day-list">
-    <view class="day-card card" wx:for="{{list}}" wx:key="id">
+    <view
+      class="day-card pressable {{index === 0 ? 'is-focus' : ''}}"
+      wx:for="{{list}}"
+      wx:key="id"
+    >
       <view class="day-top">
-        <text class="day-emoji">{{item.emoji}}</text>
+        <view class="icon-bubble tint-countdown">{{item.emoji}}</view>
         <view class="day-main">
           <view class="day-title">{{item.title}}</view>
           <view class="day-date">{{item.date}}</view>
         </view>
         <view class="day-count {{item.delta < 0 ? 'passed' : ''}}">
           <text class="num">{{item.abs}}</text>
-          <text class="unit">{{item.delta < 0 ? '天前' : (item.delta === 0 ? '就是今天' : '天后')}}</text>
+          <text class="unit">{{item.delta < 0 ? '天前' : (item.delta === 0 ? '今天' : '天后')}}</text>
         </view>
       </view>
       <view class="day-actions">
-        <button class="btn-ghost mini" size="mini" data-item="{{item}}" open-type="share" bindtap="onShareTap">分享</button>
+        <button class="btn-share mini" size="mini" data-item="{{item}}" open-type="share" bindtap="onShareTap">分享给朋友</button>
         <button class="btn-ghost mini danger" size="mini" data-id="{{item.id}}" bindtap="onDelete">删除</button>
       </view>
     </view>
   </view>
 
+  <view wx:if="{{!list.length}}" class="empty">
+    <view class="empty-title">还没有倒数日</view>
+    <view class="empty-desc">记下高考、纪念日或还款日，每天打开都有盼头</view>
+  </view>
+
+  <view class="fab-wrap">
+    <button class="btn-primary fab" bindtap="onAdd">＋ 新建倒数日</button>
+  </view>
+
   <view wx:if="{{showModal}}" class="mask" bindtap="closeModal">
     <view class="modal card" catchtap="noop">
+      <view class="modal-handle"></view>
       <view class="modal-title">新建倒数日</view>
       <view class="field">
         <text class="field-label">标题</text>

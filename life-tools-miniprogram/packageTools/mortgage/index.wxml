@@ -1,5 +1,10 @@
-<view class="container">
-  <view class="card form">
+<view class="container fade-rise">
+  <view class="page-intro">
+    <view class="page-kicker">好算生活</view>
+    <view class="page-title">房贷计算器</view>
+  </view>
+
+  <view class="form-shell">
     <view class="field">
       <text class="field-label">贷款金额（万元）</text>
       <input class="field-input" type="digit" value="{{amountWan}}" bindinput="onAmount" />
@@ -22,7 +27,7 @@
     <button class="btn-primary" bindtap="calc">开始计算</button>
   </view>
 
-  <view wx:if="{{result}}" class="result-box">
+  <view wx:if="{{result}}" class="result-box result-pop">
     <view class="result-label">{{result.methodLabel}} · 首月月供（元）</view>
     <view class="result-value">{{result.monthlyText}}</view>
     <view class="result-meta">总利息 {{result.interestText}} 元</view>
@@ -31,8 +36,8 @@
   </view>
 
   <view class="actions" wx:if="{{result}}">
-    <button class="btn-ghost" open-type="share">分享结果</button>
-    <button class="btn-ghost" bindtap="toggleFav">{{fav ? '已收藏' : '收藏工具'}}</button>
+    <button class="btn-share action" open-type="share">分享结果</button>
+    <button class="btn-ghost action" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</button>
   </view>
   <view class="hint">结果仅供参考，实际月供以贷款合同与银行系统为准。</view>
 </view>

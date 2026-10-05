@@ -1,5 +1,6 @@
 const { OPTIONS, calcRelative } = require('../../utils/relative')
 const storage = require('../../utils/storage')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
@@ -18,9 +19,10 @@ Page({
     const pathKeys = this.data.pathKeys.concat(key)
     const pathLabels = this.data.pathLabels.concat(label)
     if (pathKeys.length > 4) {
-      wx.showToast({ title: '最多 4 层关系', icon: 'none' })
+      feedback.warn('最多 4 层关系')
       return
     }
+    feedback.soft()
     this.setData({ pathKeys, pathLabels, result: null })
   },
 
@@ -39,14 +41,24 @@ Page({
   calc() {
     const result = calcRelative(this.data.pathKeys)
     storage.addHistory({ id: 'relative', path: '/packageTools/relative/index' })
-    this.setData({
-      result,
-      shareTitle: result.shareText || '好算生活｜亲戚称呼计算'
-    })
+    this.setData({ result: null })
+    setTimeout(() => {
+      this.setData({
+        result,
+        shareTitle: result.shareText || '好算生活｜亲戚称呼计算'
+      })
+      if (result.title && result.title !== '暂未收录' && result.title !== '') {
+        feedback.success('算好了')
+      } else {
+        feedback.warn(result.title || '请选择关系')
+      }
+    }, 16)
   },
 
   toggleFav() {
-    this.setData({ fav: storage.toggleFavorite('relative') })
+    const fav = storage.toggleFavorite('relative')
+    this.setData({ fav })
+    feedback.success(fav ? '已收藏' : '已取消')
   },
 
   onShareAppMessage() {

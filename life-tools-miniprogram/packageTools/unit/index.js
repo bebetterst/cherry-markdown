@@ -1,6 +1,7 @@
 const { GROUPS, convert } = require('../../utils/unit')
 const { number } = require('../../utils/format')
 const storage = require('../../utils/storage')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
@@ -15,10 +16,7 @@ Page({
     shareTitle: ''
   },
 
-  onLoad() {
-    this.applyGroup('length')
-  },
-
+  onLoad() { this.applyGroup('length') },
   onShow() { this.setData({ fav: storage.isFavorite('unit') }) },
 
   applyGroup(group) {
@@ -33,7 +31,10 @@ Page({
     })
   },
 
-  onGroup(e) { this.applyGroup(e.currentTarget.dataset.g) },
+  onGroup(e) {
+    feedback.soft()
+    this.applyGroup(e.currentTarget.dataset.g)
+  },
   onValue(e) { this.setData({ value: e.detail.value }) },
   onFrom(e) { this.setData({ fromIndex: Number(e.detail.value) }) },
   onTo(e) { this.setData({ toIndex: Number(e.detail.value) }) },
@@ -48,19 +49,25 @@ Page({
       to: to.id
     })
     if (val === null) {
-      wx.showToast({ title: '请检查输入', icon: 'none' })
+      feedback.warn('请检查输入')
       return
     }
     const resultText = `${this.data.value} ${from.name} = ${number(val, 6)} ${to.name}`
     storage.addHistory({ id: 'unit', path: '/packageTools/unit/index' })
-    this.setData({
-      resultText,
-      shareTitle: `【好算生活】${resultText}`
-    })
+    this.setData({ resultText: '' })
+    setTimeout(() => {
+      this.setData({
+        resultText,
+        shareTitle: `【好算生活】${resultText}`
+      })
+      feedback.success('换算完成')
+    }, 16)
   },
 
   toggleFav() {
-    this.setData({ fav: storage.toggleFavorite('unit') })
+    const fav = storage.toggleFavorite('unit')
+    this.setData({ fav })
+    feedback.success(fav ? '已收藏' : '已取消')
   },
 
   onShareAppMessage() {

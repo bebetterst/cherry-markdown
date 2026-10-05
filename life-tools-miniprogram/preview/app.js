@@ -72,7 +72,7 @@
     const grid = document.getElementById('tool-grid')
     grid.innerHTML = TOOLS.map((t) => `
       <article class="tool" data-panel="${t.panel}">
-        <div class="emoji">${t.emoji}</div>
+        <div class="bubble">${t.emoji}</div>
         <div class="name">${t.name}</div>
         <div class="desc">${t.desc}</div>
       </article>
@@ -97,11 +97,26 @@
 
   function renderCountdowns() {
     const list = document.getElementById('cd-list')
+    const focus = document.getElementById('cd-focus')
     const today = new Date().toISOString().slice(0, 10)
-    list.innerHTML = state.countdowns.map((item) => {
+    const enriched = state.countdowns.map((item) => {
       const delta = daysBetween(today, item.date)
-      const unit = delta < 0 ? '天前' : delta === 0 ? '就是今天' : '天后'
-      return `<div class="cd-item"><div><strong>${item.emoji} ${item.title}</strong><div style="color:var(--muted);font-size:12px;margin-top:4px">${item.date}</div></div><div class="count">${Math.abs(delta)}<span class="unit">${unit}</span></div></div>`
+      return { ...item, delta, abs: Math.abs(delta) }
+    }).sort((a, b) => {
+      const ax = a.delta < 0 ? 100000 + a.abs : a.abs
+      const bx = b.delta < 0 ? 100000 + b.abs : b.abs
+      return ax - bx
+    })
+    if (enriched[0]) {
+      const f = enriched[0]
+      const unit = f.delta < 0 ? '天前' : f.delta === 0 ? '就是今天' : '天后'
+      focus.innerHTML = `<div class="kicker">好算生活 · 倒数日</div><div class="title">${f.emoji} ${f.title}</div><div class="num">${f.abs}</div><div class="unit">${unit}</div>`
+    } else {
+      focus.innerHTML = `<div class="title">倒数日</div><div class="unit">把想奔赴的日子，放在眼前</div>`
+    }
+    list.innerHTML = enriched.map((item) => {
+      const unit = item.delta < 0 ? '天前' : item.delta === 0 ? '就是今天' : '天后'
+      return `<div class="cd-item"><div><strong>${item.emoji} ${item.title}</strong><div style="color:var(--muted);font-size:12px;margin-top:4px">${item.date}</div></div><div class="count">${item.abs}<span class="unit">${unit}</span></div></div>`
     }).join('')
   }
 

@@ -1,9 +1,11 @@
 const storage = require('../../utils/storage')
 const { daysBetween, todayStr } = require('../../utils/format')
+const feedback = require('../../utils/feedback')
 
 Page({
   data: {
     list: [],
+    focus: null,
     showModal: false,
     emojis: ['🎯', '🎂', '💍', '📚', '🛫', '💼', '🏡', '🎊'],
     form: { title: '', date: '', emoji: '🎯' },
@@ -30,10 +32,11 @@ Page({
         const bx = b.delta < 0 ? 100000 + b.abs : b.abs
         return ax - bx
       })
-    this.setData({ list })
+    this.setData({ list, focus: list[0] || null })
   },
 
   onAdd() {
+    feedback.soft()
     this.setData({
       showModal: true,
       form: { title: '', date: todayStr(), emoji: '🎯' }
@@ -61,7 +64,7 @@ Page({
   save() {
     const { title, date, emoji } = this.data.form
     if (!title.trim() || !date) {
-      wx.showToast({ title: '请填写标题和日期', icon: 'none' })
+      feedback.warn('请填写标题和日期')
       return
     }
     const list = storage.getCountdowns()
@@ -75,13 +78,23 @@ Page({
     storage.saveCountdowns(list)
     this.setData({ showModal: false })
     this.refresh()
+    feedback.success('已添加')
   },
 
   onDelete(e) {
     const id = e.currentTarget.dataset.id
-    const list = storage.getCountdowns().filter((x) => x.id !== id)
-    storage.saveCountdowns(list)
-    this.refresh()
+    wx.showModal({
+      title: '删除这条倒数日？',
+      content: '删除后无法恢复',
+      confirmColor: '#0B3D32',
+      success: (res) => {
+        if (!res.confirm) return
+        const list = storage.getCountdowns().filter((x) => x.id !== id)
+        storage.saveCountdowns(list)
+        this.refresh()
+        feedback.success('已删除')
+      }
+    })
   },
 
   onShareTap(e) {
@@ -89,7 +102,7 @@ Page({
   },
 
   onShareAppMessage() {
-    const item = this.data.shareItem
+    const item = this.data.shareItem || this.data.focus
     if (item) {
       const text =
         item.delta < 0

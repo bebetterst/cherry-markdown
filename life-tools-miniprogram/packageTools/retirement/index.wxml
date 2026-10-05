@@ -1,5 +1,9 @@
-<view class="container">
-  <view class="card form">
+<view class="container fade-rise">
+  <view class="page-intro">
+    <view class="page-kicker">好算生活</view>
+    <view class="page-title">退休年龄查询</view>
+  </view>
+  <view class="form-shell">
     <view class="field">
       <text class="field-label">出生年月</text>
       <picker mode="date" fields="month" value="{{birth}}" bindchange="onBirth">
@@ -22,16 +26,15 @@
     </view>
     <button class="btn-primary" bindtap="calc">查询退休时间</button>
   </view>
-
-  <view wx:if="{{result}}" class="result-box">
+  <view wx:if="{{result}}" class="result-box result-pop">
     <view class="result-label">预计退休时间</view>
     <view class="result-value small">{{result.retireAt}}</view>
     <view class="result-meta">退休年龄约 {{result.retireAgeText}}</view>
     <view class="result-meta">相对原 {{result.originalAge}} 岁，延迟 {{result.delayMonths}} 个月</view>
   </view>
   <view class="actions" wx:if="{{result}}">
-    <button class="btn-ghost" open-type="share">分享结果</button>
-    <button class="btn-ghost" bindtap="toggleFav">{{fav ? '已收藏' : '收藏工具'}}</button>
+    <button class="btn-share action" open-type="share">分享结果</button>
+    <button class="btn-ghost action" bindtap="toggleFav">{{fav ? '已收藏' : '收藏'}}</button>
   </view>
   <view class="hint">{{hint}}</view>
 </view>
