@@ -1,0 +1,33 @@
+.hero {
+  padding: 36rpx 28rpx;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 22rpx 24rpx;
+}
+
+.name {
+  font-weight: 600;
+  color: var(--brand);
+}
+
+.note {
+  padding: 24rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.empty.soft {
+  padding: 24rpx 8rpx;
+  text-align: left;
+}

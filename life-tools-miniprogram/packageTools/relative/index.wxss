@@ -1,0 +1,29 @@
+.form { padding: 28rpx; }
+.path {
+  min-height: 80rpx;
+  padding: 18rpx 20rpx;
+  background: #f7faf7;
+  border-radius: 14rpx;
+  color: var(--brand);
+  font-weight: 600;
+  margin-bottom: 20rpx;
+}
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.opt {
+  padding: 14rpx 22rpx;
+  border-radius: 999rpx;
+  background: rgba(15,61,46,0.08);
+  color: var(--brand);
+}
+.actions-row {
+  margin-top: 24rpx;
+  display: flex;
+  gap: 12rpx;
+}
+.actions-row button { flex: 1; font-size: 26rpx; }
+.actions { margin-top: 20rpx; display:flex; gap:12rpx; }
+.actions button { flex:1; }

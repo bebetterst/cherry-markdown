@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="card form">
+    <view class="field">
+      <text class="field-label">类别</text>
+      <view class="seg">
+        <view class="seg-item {{group==='length'?'active':''}}" data-g="length" bindtap="onGroup">长度</view>
+        <view class="seg-item {{group==='weight'?'active':''}}" data-g="weight" bindtap="onGroup">重量</view>
+        <view class="seg-item {{group==='temperature'?'active':''}}" data-g="temperature" bindtap="onGroup">温度</view>
+      </view>
+    </view>
+    <view class="field">
+      <text class="field-label">数值</text>
+      <input class="field-input" type="digit" value="{{value}}" bindinput="onValue" />
+    </view>
+    <view class="field">
+      <text class="field-label">从</text>
+      <picker range="{{unitNames}}" value="{{fromIndex}}" bindchange="onFrom">
+        <view class="field-input picker">{{unitNames[fromIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="field-label">到</text>
+      <picker range="{{unitNames}}" value="{{toIndex}}" bindchange="onTo">
+        <view class="field-input picker">{{unitNames[toIndex]}}</view>
+      </picker>
+    </view>
+    <button class="btn-primary" bindtap="calc">换算</button>
+  </view>
+
+  <view wx:if="{{resultText}}" class="result-box">
+    <view class="result-label">换算结果</view>
+    <view class="result-value small">{{resultText}}</view>
+  </view>
+  <view class="actions" wx:if="{{resultText}}">
+    <button class="btn-ghost" open-type="share">分享结果</button>
+    <button class="btn-ghost" bindtap="toggleFav">{{fav ? '已收藏' : '收藏工具'}}</button>
+  </view>
+</view>

@@ -1,0 +1,134 @@
+.hero {
+  padding: 8rpx;
+}
+
+.add-btn {
+  margin: 28rpx 0 8rpx;
+}
+
+.day-list {
+  margin-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.day-card {
+  padding: 24rpx;
+}
+
+.day-top {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.day-emoji {
+  font-size: 48rpx;
+}
+
+.day-main {
+  flex: 1;
+}
+
+.day-title {
+  font-size: 32rpx;
+  font-weight: 650;
+  color: var(--brand);
+}
+
+.day-date {
+  margin-top: 4rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.day-count {
+  text-align: right;
+  color: var(--accent);
+}
+
+.day-count.passed {
+  color: var(--muted);
+}
+
+.day-count .num {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.day-count .unit {
+  font-size: 22rpx;
+}
+
+.day-actions {
+  margin-top: 18rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.mini {
+  margin: 0;
+  padding: 0 22rpx;
+  line-height: 56rpx;
+  font-size: 22rpx;
+}
+
+.danger {
+  color: var(--danger) !important;
+  border-color: rgba(194, 65, 12, 0.25) !important;
+}
+
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 24, 18, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 20;
+}
+
+.modal {
+  width: 100%;
+  padding: 32rpx 28rpx 48rpx;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--brand);
+  margin-bottom: 20rpx;
+}
+
+.picker {
+  display: flex;
+  align-items: center;
+}
+
+.emoji-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.emoji {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+  background: #eef3ef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  text-align: center;
+  line-height: 72rpx;
+}
+
+.emoji.on {
+  background: var(--accent-soft);
+  outline: 2rpx solid var(--accent);
+}

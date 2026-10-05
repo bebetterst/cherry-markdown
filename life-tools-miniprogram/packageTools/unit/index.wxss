@@ -1,0 +1,5 @@
+.form { padding: 28rpx; }
+.picker { display:flex; align-items:center; }
+.result-value.small { font-size: 40rpx; }
+.actions { margin-top: 20rpx; display:flex; gap:12rpx; }
+.actions button { flex:1; }

@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="card form">
+    <view class="field">
+      <text class="field-label">开始日期</text>
+      <picker mode="date" value="{{start}}" bindchange="onStart">
+        <view class="field-input picker">{{start}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="field-label">结束日期</text>
+      <picker mode="date" value="{{end}}" bindchange="onEnd">
+        <view class="field-input picker">{{end}}</view>
+      </picker>
+    </view>
+    <button class="btn-primary" bindtap="calc">计算间隔</button>
+  </view>
+
+  <view wx:if="{{resultText}}" class="result-box">
+    <view class="result-label">相差天数</view>
+    <view class="result-value">{{resultText}}</view>
+    <view class="result-meta">也可去「倒数日」记录这个日子</view>
+  </view>
+  <view class="actions" wx:if="{{resultText}}">
+    <button class="btn-ghost" bindtap="goCountdown">记入倒数日</button>
+    <button class="btn-ghost" open-type="share">分享</button>
+  </view>
+</view>

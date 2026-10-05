@@ -1,0 +1,75 @@
+<view class="container">
+  <view class="hero">
+    <view class="brand-mark">好算生活</view>
+    <view class="brand-sub">把日常账算清楚，把关键日记明白</view>
+  </view>
+
+  <view class="search card">
+    <input
+      class="search-input"
+      placeholder="搜工具：房贷、个税、退休、亲戚称呼…"
+      value="{{keyword}}"
+      confirm-type="search"
+      bindinput="onSearch"
+    />
+  </view>
+
+  <view class="chips">
+    <view
+      wx:for="{{hotKeywords}}"
+      wx:key="*this"
+      class="chip"
+      data-word="{{item}}"
+      bindtap="onChip"
+    >{{item}}</view>
+  </view>
+
+  <view class="section-title">热门工具</view>
+  <view class="tool-grid">
+    <view
+      class="tool-item card"
+      wx:for="{{hotTools}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      data-id="{{item.id}}"
+      data-tab="{{item.tab}}"
+      bindtap="goTool"
+    >
+      <text class="tool-emoji">{{item.emoji}}</text>
+      <view class="tool-name">{{item.name}}</view>
+      <view class="tool-desc">{{item.desc}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">全部分类</view>
+  <view class="seg">
+    <view
+      wx:for="{{categories}}"
+      wx:key="id"
+      class="seg-item {{category === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onCategory"
+    >{{item.name}}</view>
+  </view>
+
+  <view class="list">
+    <view
+      class="list-item card"
+      wx:for="{{filteredTools}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      data-id="{{item.id}}"
+      data-tab="{{item.tab}}"
+      bindtap="goTool"
+    >
+      <text class="tool-emoji">{{item.emoji}}</text>
+      <view class="list-main">
+        <view class="tool-name">{{item.name}}</view>
+        <view class="tool-desc">{{item.desc}}</view>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!filteredTools.length}}" class="empty">没有找到相关工具，换个词试试</view>
+</view>

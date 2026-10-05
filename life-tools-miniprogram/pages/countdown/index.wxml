@@ -1,0 +1,59 @@
+<view class="container">
+  <view class="hero">
+    <view class="brand-mark">倒数日</view>
+    <view class="brand-sub">把想奔赴的日子，放在眼前</view>
+  </view>
+
+  <button class="btn-primary add-btn" bindtap="onAdd">新建倒数日</button>
+
+  <view wx:if="{{!list.length}}" class="empty">还没有倒数日，先记下第一个重要日子吧</view>
+
+  <view class="day-list">
+    <view class="day-card card" wx:for="{{list}}" wx:key="id">
+      <view class="day-top">
+        <text class="day-emoji">{{item.emoji}}</text>
+        <view class="day-main">
+          <view class="day-title">{{item.title}}</view>
+          <view class="day-date">{{item.date}}</view>
+        </view>
+        <view class="day-count {{item.delta < 0 ? 'passed' : ''}}">
+          <text class="num">{{item.abs}}</text>
+          <text class="unit">{{item.delta < 0 ? '天前' : (item.delta === 0 ? '就是今天' : '天后')}}</text>
+        </view>
+      </view>
+      <view class="day-actions">
+        <button class="btn-ghost mini" size="mini" data-item="{{item}}" open-type="share" bindtap="onShareTap">分享</button>
+        <button class="btn-ghost mini danger" size="mini" data-id="{{item.id}}" bindtap="onDelete">删除</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showModal}}" class="mask" bindtap="closeModal">
+    <view class="modal card" catchtap="noop">
+      <view class="modal-title">新建倒数日</view>
+      <view class="field">
+        <text class="field-label">标题</text>
+        <input class="field-input" placeholder="例如：高考 / 结婚纪念日" value="{{form.title}}" bindinput="onTitle" />
+      </view>
+      <view class="field">
+        <text class="field-label">日期</text>
+        <picker mode="date" value="{{form.date}}" bindchange="onDate">
+          <view class="field-input picker">{{form.date || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="field-label">表情</text>
+        <view class="emoji-row">
+          <text
+            wx:for="{{emojis}}"
+            wx:key="*this"
+            class="emoji {{form.emoji === item ? 'on' : ''}}"
+            data-emoji="{{item}}"
+            bindtap="onEmoji"
+          >{{item}}</text>
+        </view>
+      </view>
+      <button class="btn-primary" bindtap="save">保存</button>
+    </view>
+  </view>
+</view>

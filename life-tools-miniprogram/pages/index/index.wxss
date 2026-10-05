@@ -1,0 +1,83 @@
+.hero {
+  padding: 12rpx 8rpx 8rpx;
+}
+
+.search {
+  margin-top: 28rpx;
+  padding: 8rpx 8rpx;
+}
+
+.search-input {
+  height: 84rpx;
+  padding: 0 28rpx;
+  background: #f7faf7;
+  border-radius: 14rpx;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.chip {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(15, 61, 46, 0.08);
+  color: var(--brand);
+  font-size: 22rpx;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.tool-item {
+  padding: 24rpx;
+  min-height: 200rpx;
+}
+
+.tool-emoji {
+  font-size: 40rpx;
+}
+
+.tool-name {
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  font-weight: 650;
+  color: var(--brand);
+}
+
+.tool-desc {
+  margin-top: 6rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+.list {
+  margin-top: 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 22rpx 24rpx;
+}
+
+.list-main {
+  flex: 1;
+}
+
+.arrow {
+  color: var(--muted);
+  font-size: 40rpx;
+  line-height: 1;
+}

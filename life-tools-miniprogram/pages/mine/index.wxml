@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="hero card">
+    <view class="brand-mark">好算生活</view>
+    <view class="brand-sub">v{{version}} · 个人工具，本地优先</view>
+  </view>
+
+  <view class="section-title">收藏的工具</view>
+  <view wx:if="{{!favorites.length}}" class="empty soft">在工具页右上角可收藏常用功能</view>
+  <view class="list">
+    <view
+      class="list-item card"
+      wx:for="{{favorites}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      data-tab="{{item.tab}}"
+      bindtap="go"
+    >
+      <text>{{item.emoji}}</text>
+      <text class="name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="section-title">最近使用</view>
+  <view wx:if="{{!history.length}}" class="empty soft">用过的工具会出现在这里</view>
+  <view class="list">
+    <view
+      class="list-item card"
+      wx:for="{{history}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      data-tab="{{item.tab}}"
+      bindtap="go"
+    >
+      <text>{{item.emoji}}</text>
+      <text class="name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="section-title">说明</view>
+  <view class="card note">
+    <view>1. 计算结果仅供参考，房贷/个税/退休请以银行与社保部门为准。</view>
+    <view>2. 倒数日与历史默认保存在本机，清除缓存会丢失。</view>
+    <view>3. 开通流量主后，在 config/ads.js 填入广告单元 ID 即可变现。</view>
+  </view>
+</view>

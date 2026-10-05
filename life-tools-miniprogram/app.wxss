@@ -1,0 +1,170 @@
+page {
+  --brand: #0f3d2e;
+  --brand-2: #1f6b4f;
+  --accent: #d97706;
+  --accent-soft: #f6e7c8;
+  --bg: #f3f6f2;
+  --card: #ffffff;
+  --text: #1a2b24;
+  --muted: #6b7c72;
+  --line: rgba(15, 61, 46, 0.08);
+  --danger: #c2410c;
+  --radius: 18rpx;
+  --shadow: 0 10rpx 30rpx rgba(15, 61, 46, 0.06);
+
+  background:
+    radial-gradient(1200rpx 600rpx at 10% -10%, rgba(214, 163, 74, 0.18), transparent 55%),
+    radial-gradient(900rpx 500rpx at 100% 0%, rgba(31, 107, 79, 0.12), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+view,
+text,
+input,
+button,
+textarea {
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 32rpx 28rpx 48rpx;
+  min-height: 100vh;
+}
+
+.brand-mark {
+  font-size: 48rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: var(--brand);
+}
+
+.brand-sub {
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: 26rpx;
+}
+
+.section-title {
+  margin: 36rpx 0 18rpx;
+  font-size: 32rpx;
+  font-weight: 650;
+  color: var(--brand);
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1rpx solid var(--line);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: #fff;
+  border-radius: 999rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--brand);
+  border: 2rpx solid rgba(15, 61, 46, 0.2);
+  border-radius: 999rpx;
+}
+
+.btn-ghost::after {
+  border: none;
+}
+
+.field {
+  margin-bottom: 22rpx;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 10rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+}
+
+.field-input {
+  width: 100%;
+  min-height: 84rpx;
+  padding: 0 24rpx;
+  background: #f7faf7;
+  border-radius: 14rpx;
+  border: 1rpx solid var(--line);
+}
+
+.seg {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.seg-item {
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  background: #eef3ef;
+  color: var(--muted);
+  font-size: 24rpx;
+}
+
+.seg-item.active {
+  background: var(--brand);
+  color: #fff;
+}
+
+.result-box {
+  margin-top: 28rpx;
+  padding: 28rpx;
+  background: linear-gradient(160deg, #123f31 0%, #1f6b4f 70%, #2f8a62 100%);
+  color: #fff;
+  border-radius: 22rpx;
+}
+
+.result-label {
+  opacity: 0.8;
+  font-size: 24rpx;
+}
+
+.result-value {
+  margin-top: 8rpx;
+  font-size: 52rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.result-meta {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+.hint {
+  margin-top: 16rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.empty {
+  padding: 80rpx 20rpx;
+  text-align: center;
+  color: var(--muted);
+}
+
+.ad-slot {
+  margin: 24rpx 0;
+  min-height: 20rpx;
+}

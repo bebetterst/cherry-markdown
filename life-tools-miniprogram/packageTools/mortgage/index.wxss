@@ -1,0 +1,13 @@
+.form {
+  padding: 28rpx;
+}
+
+.actions {
+  margin-top: 20rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.actions button {
+  flex: 1;
+}

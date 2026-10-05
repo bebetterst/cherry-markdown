@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="card form">
+    <view class="path">我
+      <text wx:for="{{pathLabels}}" wx:key="*this"> 的 {{item}}</text>
+    </view>
+    <view class="options">
+      <view
+        class="opt"
+        wx:for="{{options}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        data-label="{{item.label}}"
+        bindtap="push"
+      >{{item.label}}</view>
+    </view>
+    <view class="actions-row">
+      <button class="btn-ghost" bindtap="back">回退</button>
+      <button class="btn-ghost" bindtap="reset">清空</button>
+      <button class="btn-primary" bindtap="calc">算出称呼</button>
+    </view>
+  </view>
+
+  <view wx:if="{{result}}" class="result-box">
+    <view class="result-label">应该称呼</view>
+    <view class="result-value">{{result.title}}</view>
+    <view class="result-meta">{{result.tip}}</view>
+  </view>
+  <view class="actions" wx:if="{{result}}">
+    <button class="btn-ghost" open-type="share">分享结果</button>
+    <button class="btn-ghost" bindtap="toggleFav">{{fav ? '已收藏' : '收藏工具'}}</button>
+  </view>
+</view>
