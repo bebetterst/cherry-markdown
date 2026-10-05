@@ -32,7 +32,7 @@ function ensureDefaults() {
         id: 'demo-newyear',
         title: '元旦',
         date: formatDate(nextYear),
-        emoji: '🎊',
+        symbol: 'party',
         createdAt: Date.now()
       }
     ])

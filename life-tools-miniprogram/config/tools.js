@@ -1,5 +1,6 @@
 /**
  * 首页工具目录：名称与路径同时服务「搜一搜」关键词覆盖
+ * icon 使用 assets/icons 下线型图标，禁止 emoji 充当主图标
  */
 module.exports = {
   hotKeywords: ['房贷计算', '个税计算', '退休年龄', '亲戚称呼', '倒数日', '单位换算'],
@@ -17,7 +18,7 @@ module.exports = {
       category: 'calc',
       hot: true,
       path: '/packageTools/mortgage/index',
-      emoji: '🏠'
+      icon: '/assets/icons/mortgage.png'
     },
     {
       id: 'salary',
@@ -27,7 +28,7 @@ module.exports = {
       category: 'calc',
       hot: true,
       path: '/packageTools/salary/index',
-      emoji: '💼'
+      icon: '/assets/icons/salary.png'
     },
     {
       id: 'retirement',
@@ -37,17 +38,17 @@ module.exports = {
       category: 'life',
       hot: true,
       path: '/packageTools/retirement/index',
-      emoji: '🗓️'
+      icon: '/assets/icons/retirement.png'
     },
     {
       id: 'relative',
       name: '亲戚称呼计算',
-      desc: '快速弄清该叫什么',
+      desc: '逐级选择关系，快速弄清该叫什么',
       keywords: ['亲戚称呼', '称呼计算', '亲戚关系'],
       category: 'life',
       hot: true,
       path: '/packageTools/relative/index',
-      emoji: '👪'
+      icon: '/assets/icons/relative.png'
     },
     {
       id: 'unit',
@@ -57,7 +58,7 @@ module.exports = {
       category: 'calc',
       hot: false,
       path: '/packageTools/unit/index',
-      emoji: '📏'
+      icon: '/assets/icons/unit.png'
     },
     {
       id: 'dateGap',
@@ -67,7 +68,7 @@ module.exports = {
       category: 'day',
       hot: false,
       path: '/packageTools/dateGap/index',
-      emoji: '⏳'
+      icon: '/assets/icons/dateGap.png'
     },
     {
       id: 'countdown',
@@ -77,8 +78,18 @@ module.exports = {
       category: 'day',
       hot: true,
       path: '/pages/countdown/index',
-      emoji: '🎯',
+      icon: '/assets/icons/countdown.png',
       tab: true
     }
+  ],
+  daySymbols: [
+    { id: 'flag', icon: '/assets/icons/day-flag.png', label: '目标' },
+    { id: 'cake', icon: '/assets/icons/day-cake.png', label: '生日' },
+    { id: 'ring', icon: '/assets/icons/day-ring.png', label: '纪念' },
+    { id: 'book', icon: '/assets/icons/day-book.png', label: '考试' },
+    { id: 'plane', icon: '/assets/icons/day-plane.png', label: '出行' },
+    { id: 'brief', icon: '/assets/icons/day-brief.png', label: '工作' },
+    { id: 'home', icon: '/assets/icons/day-home.png', label: '安家' },
+    { id: 'party', icon: '/assets/icons/day-party.png', label: '节日' }
   ]
 }

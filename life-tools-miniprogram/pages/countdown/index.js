@@ -1,14 +1,23 @@
 const storage = require('../../utils/storage')
 const { daysBetween, todayStr } = require('../../utils/format')
 const feedback = require('../../utils/feedback')
+const { daySymbols } = require('../../config/tools')
+
+const SYMBOL_MAP = Object.fromEntries(daySymbols.map((s) => [s.id, s]))
+
+function resolveIcon(item) {
+  if (item.symbol && SYMBOL_MAP[item.symbol]) return SYMBOL_MAP[item.symbol].icon
+  if (item.icon) return item.icon
+  return '/assets/icons/countdown.png'
+}
 
 Page({
   data: {
     list: [],
     focus: null,
     showModal: false,
-    emojis: ['🎯', '🎂', '💍', '📚', '🛫', '💼', '🏡', '🎊'],
-    form: { title: '', date: '', emoji: '🎯' },
+    symbols: daySymbols,
+    form: { title: '', date: '', symbol: 'flag' },
     shareItem: null
   },
 
@@ -23,6 +32,7 @@ Page({
         const delta = daysBetween(today, item.date)
         return {
           ...item,
+          icon: resolveIcon(item),
           delta,
           abs: Math.abs(delta ?? 0)
         }
@@ -39,7 +49,7 @@ Page({
     feedback.soft()
     this.setData({
       showModal: true,
-      form: { title: '', date: todayStr(), emoji: '🎯' }
+      form: { title: '', date: todayStr(), symbol: 'flag' }
     })
   },
 
@@ -57,12 +67,12 @@ Page({
     this.setData({ 'form.date': e.detail.value })
   },
 
-  onEmoji(e) {
-    this.setData({ 'form.emoji': e.currentTarget.dataset.emoji })
+  onSymbol(e) {
+    this.setData({ 'form.symbol': e.currentTarget.dataset.id })
   },
 
   save() {
-    const { title, date, emoji } = this.data.form
+    const { title, date, symbol } = this.data.form
     if (!title.trim() || !date) {
       feedback.warn('请填写标题和日期')
       return
@@ -72,7 +82,7 @@ Page({
       id: `c_${Date.now()}`,
       title: title.trim(),
       date,
-      emoji,
+      symbol,
       createdAt: Date.now()
     })
     storage.saveCountdowns(list)

@@ -6,7 +6,7 @@
   </view>
 
   <view class="search-shell">
-    <view class="search-icon">⌕</view>
+    <image class="search-glyph" src="/assets/icons/search.png" mode="aspectFit" />
     <input
       class="search-input"
       placeholder="搜索房贷、个税、退休、亲戚称呼…"
@@ -32,7 +32,7 @@
 
   <view wx:if="{{continueTool}}" class="continue card pressable" data-path="{{continueTool.path}}" data-id="{{continueTool.id}}" data-tab="{{continueTool.tab}}" bindtap="goTool">
     <view class="continue-left">
-      <view class="icon-bubble">{{continueTool.emoji}}</view>
+      <image class="tool-icon" src="{{continueTool.icon}}" mode="aspectFit" />
       <view>
         <view class="continue-kicker">继续上次</view>
         <view class="continue-name">{{continueTool.name}}</view>
@@ -44,7 +44,7 @@
   <view wx:if="{{nearestDay}}" class="day-peek card pressable" bindtap="goCountdown">
     <view class="day-peek-copy">
       <view class="continue-kicker">最近倒数日</view>
-      <view class="day-peek-title">{{nearestDay.emoji}} {{nearestDay.title}}</view>
+      <view class="day-peek-title">{{nearestDay.title}}</view>
     </view>
     <view class="day-peek-count pulse-soft">
       <text class="num">{{nearestDay.abs}}</text>
@@ -53,22 +53,24 @@
   </view>
 
   <view class="section-head">
-    <view class="section-title">热门工具</view>
+    <view class="section-title">常用工具</view>
   </view>
-  <view class="tool-grid">
+  <view class="list">
     <view
-      class="tool-item pressable"
+      class="list-item pressable"
       wx:for="{{hotTools}}"
       wx:key="id"
       data-path="{{item.path}}"
       data-id="{{item.id}}"
       data-tab="{{item.tab}}"
       bindtap="goTool"
-      style="animation-delay: {{index * 40}}ms"
     >
-      <view class="icon-bubble tint-{{item.id}}">{{item.emoji}}</view>
-      <view class="tool-name">{{item.name}}</view>
-      <view class="tool-desc">{{item.desc}}</view>
+      <image class="tool-icon" src="{{item.icon}}" mode="aspectFit" />
+      <view class="list-main">
+        <view class="tool-name">{{item.name}}</view>
+        <view class="tool-desc">{{item.desc}}</view>
+      </view>
+      <text class="arrow">›</text>
     </view>
   </view>
 
@@ -95,7 +97,7 @@
       data-tab="{{item.tab}}"
       bindtap="goTool"
     >
-      <view class="icon-bubble tint-{{item.id}}">{{item.emoji}}</view>
+      <image class="tool-icon" src="{{item.icon}}" mode="aspectFit" />
       <view class="list-main">
         <view class="tool-name">{{item.name}}</view>
         <view class="tool-desc">{{item.desc}}</view>

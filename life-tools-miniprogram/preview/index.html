@@ -22,20 +22,16 @@
 
     <main>
       <section id="panel-tools" class="panel active">
-        <div class="search"><span>⌕</span><span>搜索房贷、个税、退休、亲戚称呼…</span></div>
+        <div class="search"><span class="search-dot"></span><span>搜索房贷、个税、退休、亲戚称呼…</span></div>
         <div class="chips">
           <span>房贷计算</span><span>个税计算</span><span>退休年龄</span><span>亲戚称呼</span>
         </div>
         <div class="continue">
-          <div><div class="kicker">继续上次</div><strong>🏠 房贷计算器</strong></div>
-          <div style="color:var(--brand-2);font-weight:600">打开 ›</div>
+          <div><div class="kicker">继续上次</div><strong>房贷计算器</strong></div>
+          <div class="cta">打开 ›</div>
         </div>
-        <div class="day-peek">
-          <div><div class="kicker">最近倒数日</div><strong>📚 高考</strong></div>
-          <div class="count">128<span class="unit">天后</span></div>
-        </div>
-        <h2>热门工具</h2>
-        <div class="grid" id="tool-grid"></div>
+        <h2>常用工具</h2>
+        <div class="list" id="tool-list"></div>
       </section>
 
       <section id="panel-countdown" class="panel">
@@ -67,16 +63,14 @@
 
       <section id="panel-relative" class="panel">
         <h2>亲戚称呼</h2>
-        <div class="card form">
-          <div id="rel-path" class="path">我</div>
-          <div id="rel-options" class="options"></div>
-          <div class="row">
-            <button type="button" id="rel-back">回退</button>
-            <button type="button" id="rel-reset">清空</button>
-            <button type="button" id="rel-calc">算出称呼</button>
-          </div>
+        <div class="crumbs" id="rel-crumbs"></div>
+        <div id="rel-preview" class="preview empty">请选择下一层关系</div>
+        <div id="rel-groups"></div>
+        <div class="dock">
+          <button type="button" id="rel-back">回退</button>
+          <button type="button" id="rel-reset">清空</button>
+          <button type="button" id="rel-share" class="share" disabled>分享</button>
         </div>
-        <div id="rel-result" class="result hidden"></div>
       </section>
     </main>
   </div>

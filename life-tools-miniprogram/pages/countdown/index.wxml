@@ -1,7 +1,8 @@
 <view class="container fade-rise">
   <view wx:if="{{focus}}" class="focus-hero">
     <view class="focus-kicker">好算生活 · 倒数日</view>
-    <view class="focus-title">{{focus.emoji}} {{focus.title}}</view>
+    <image class="focus-icon" src="{{focus.icon}}" mode="aspectFit" />
+    <view class="focus-title">{{focus.title}}</view>
     <view class="focus-count {{focus.delta < 0 ? 'passed' : ''}} pulse-soft">
       <text class="num">{{focus.abs}}</text>
       <text class="unit">{{focus.delta < 0 ? '天前' : (focus.delta === 0 ? '就是今天' : '天后')}}</text>
@@ -21,7 +22,7 @@
       wx:key="id"
     >
       <view class="day-top">
-        <view class="icon-bubble tint-countdown">{{item.emoji}}</view>
+        <image class="day-icon" src="{{item.icon}}" mode="aspectFit" />
         <view class="day-main">
           <view class="day-title">{{item.title}}</view>
           <view class="day-date">{{item.date}}</view>
@@ -44,7 +45,7 @@
   </view>
 
   <view class="fab-wrap">
-    <button class="btn-primary fab" bindtap="onAdd">＋ 新建倒数日</button>
+    <button class="btn-primary fab" bindtap="onAdd">新建倒数日</button>
   </view>
 
   <view wx:if="{{showModal}}" class="mask" bindtap="closeModal">
@@ -53,7 +54,7 @@
       <view class="modal-title">新建倒数日</view>
       <view class="field">
         <text class="field-label">标题</text>
-        <input class="field-input" placeholder="例如：高考 / 结婚纪念日" value="{{form.title}}" bindinput="onTitle" />
+        <input class="field-input" placeholder="例如：高考 / 结婚纪念日" value="{{form.title}}" bindinput="onTitle" focus="{{showModal}}" />
       </view>
       <view class="field">
         <text class="field-label">日期</text>
@@ -62,15 +63,18 @@
         </picker>
       </view>
       <view class="field">
-        <text class="field-label">表情</text>
-        <view class="emoji-row">
-          <text
-            wx:for="{{emojis}}"
-            wx:key="*this"
-            class="emoji {{form.emoji === item ? 'on' : ''}}"
-            data-emoji="{{item}}"
-            bindtap="onEmoji"
-          >{{item}}</text>
+        <text class="field-label">图标</text>
+        <view class="symbol-row">
+          <view
+            wx:for="{{symbols}}"
+            wx:key="id"
+            class="symbol {{form.symbol === item.id ? 'on' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onSymbol"
+          >
+            <image src="{{item.icon}}" mode="aspectFit" />
+            <text>{{item.label}}</text>
+          </view>
         </view>
       </view>
       <button class="btn-primary" bindtap="save">保存</button>

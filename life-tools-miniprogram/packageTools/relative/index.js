@@ -1,58 +1,79 @@
-const { OPTIONS, calcRelative } = require('../../utils/relative')
+const { OPTION_GROUPS, calcRelative } = require('../../utils/relative')
 const storage = require('../../utils/storage')
 const feedback = require('../../utils/feedback')
 
 Page({
   data: {
-    options: OPTIONS,
+    optionGroups: OPTION_GROUPS,
     pathKeys: [],
     pathLabels: [],
-    result: null,
+    preview: { title: '', tip: '从「父母长辈」等分组里点选第一层关系', empty: true },
+    stepTitle: '选择第一层关系',
+    stepNo: 1,
+    canShare: false,
     fav: false,
     shareTitle: ''
   },
 
-  onShow() { this.setData({ fav: storage.isFavorite('relative') }) },
-
-  push(e) {
-    const { key, label } = e.currentTarget.dataset
-    const pathKeys = this.data.pathKeys.concat(key)
-    const pathLabels = this.data.pathLabels.concat(label)
-    if (pathKeys.length > 4) {
-      feedback.warn('最多 4 层关系')
-      return
-    }
-    feedback.soft()
-    this.setData({ pathKeys, pathLabels, result: null })
+  onShow() {
+    this.setData({ fav: storage.isFavorite('relative') })
   },
 
-  back() {
+  refreshPreview(pathKeys, pathLabels) {
+    const preview = calcRelative(pathKeys)
+    const stepNo = Math.min(pathKeys.length + 1, 4)
+    const stepTitle =
+      pathKeys.length >= 4
+        ? '已选满四层'
+        : pathKeys.length === 0
+          ? '选择第一层关系'
+          : `继续选择：${pathLabels[pathLabels.length - 1]}的…`
+    const canShare = !!(preview.title && !preview.empty && preview.title !== '暂未收录' && preview.title !== '关系过远')
     this.setData({
-      pathKeys: this.data.pathKeys.slice(0, -1),
-      pathLabels: this.data.pathLabels.slice(0, -1),
-      result: null
+      pathKeys,
+      pathLabels,
+      preview: pathKeys.length === 0
+        ? { title: '', tip: '从下方列表点选第一层关系，例如先点「妈妈」', empty: true }
+        : preview,
+      stepTitle,
+      stepNo,
+      canShare,
+      shareTitle: preview.shareText || '好算生活｜亲戚称呼计算'
     })
   },
 
-  reset() {
-    this.setData({ pathKeys: [], pathLabels: [], result: null, shareTitle: '' })
+  push(e) {
+    if (this.data.pathKeys.length >= 4) {
+      feedback.warn('最多 4 层关系')
+      return
+    }
+    const { key, label } = e.currentTarget.dataset
+    const pathKeys = this.data.pathKeys.concat(key)
+    const pathLabels = this.data.pathLabels.concat(label)
+    feedback.soft()
+    storage.addHistory({ id: 'relative', path: '/packageTools/relative/index' })
+    this.refreshPreview(pathKeys, pathLabels)
   },
 
-  calc() {
-    const result = calcRelative(this.data.pathKeys)
-    storage.addHistory({ id: 'relative', path: '/packageTools/relative/index' })
-    this.setData({ result: null })
-    setTimeout(() => {
-      this.setData({
-        result,
-        shareTitle: result.shareText || '好算生活｜亲戚称呼计算'
-      })
-      if (result.title && result.title !== '暂未收录' && result.title !== '') {
-        feedback.success('算好了')
-      } else {
-        feedback.warn(result.title || '请选择关系')
-      }
-    }, 16)
+  back() {
+    if (!this.data.pathKeys.length) return
+    feedback.soft()
+    this.refreshPreview(this.data.pathKeys.slice(0, -1), this.data.pathLabels.slice(0, -1))
+  },
+
+  jumpTo(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    feedback.soft()
+    if (index < 0) {
+      this.refreshPreview([], [])
+      return
+    }
+    this.refreshPreview(this.data.pathKeys.slice(0, index + 1), this.data.pathLabels.slice(0, index + 1))
+  },
+
+  reset() {
+    feedback.soft()
+    this.refreshPreview([], [])
   },
 
   toggleFav() {

@@ -28,7 +28,7 @@
   <view wx:if="{{!favorites.length}}" class="empty soft">
     <view class="empty-desc">在工具结果页点「收藏」，下次更快打开</view>
   </view>
-  <view class="list">
+  <view class="list" wx:if="{{favorites.length}}">
     <view
       class="list-item pressable"
       wx:for="{{favorites}}"
@@ -37,7 +37,7 @@
       data-tab="{{item.tab}}"
       bindtap="go"
     >
-      <view class="icon-bubble">{{item.emoji}}</view>
+      <image class="tool-icon" src="{{item.icon}}" mode="aspectFit" />
       <text class="name">{{item.name}}</text>
       <text class="arrow">›</text>
     </view>
@@ -49,7 +49,7 @@
   <view wx:if="{{!history.length}}" class="empty soft">
     <view class="empty-desc">用过的工具会出现在这里</view>
   </view>
-  <view class="list">
+  <view class="list" wx:if="{{history.length}}">
     <view
       class="list-item pressable"
       wx:for="{{history}}"
@@ -58,7 +58,7 @@
       data-tab="{{item.tab}}"
       bindtap="go"
     >
-      <view class="icon-bubble">{{item.emoji}}</view>
+      <image class="tool-icon" src="{{item.icon}}" mode="aspectFit" />
       <text class="name">{{item.name}}</text>
       <text class="arrow">›</text>
     </view>

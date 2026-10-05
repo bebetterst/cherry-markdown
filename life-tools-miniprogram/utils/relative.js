@@ -1,6 +1,6 @@
 /**
  * 亲戚称呼：基于常见关系链的简化词典
- * 输入：以「我」为起点的关系路径，如 ['父','兄'] => 伯父/叔叔（需排行，这里给统称提示）
+ * 选项按「父母 / 配偶 / 兄弟姐妹 / 子女」分组，便于移动端逐级点选
  */
 
 const EDGE = {
@@ -16,7 +16,6 @@ const EDGE = {
   女: { male: null, female: '女儿', nextSex: 'female' }
 }
 
-// 路径字符串 -> 称呼
 const MAP = {
   父: '爸爸',
   母: '妈妈',
@@ -88,22 +87,49 @@ const MAP = {
   女女: '外孙女'
 }
 
-const OPTIONS = [
-  { key: '父', label: '爸爸' },
-  { key: '母', label: '妈妈' },
-  { key: '夫', label: '丈夫' },
-  { key: '妻', label: '妻子' },
-  { key: '兄', label: '哥哥' },
-  { key: '弟', label: '弟弟' },
-  { key: '姐', label: '姐姐' },
-  { key: '妹', label: '妹妹' },
-  { key: '子', label: '儿子' },
-  { key: '女', label: '女儿' }
+const OPTION_GROUPS = [
+  {
+    id: 'parents',
+    title: '父母长辈',
+    items: [
+      { key: '父', label: '爸爸', hint: '父亲' },
+      { key: '母', label: '妈妈', hint: '母亲' }
+    ]
+  },
+  {
+    id: 'spouse',
+    title: '配偶',
+    items: [
+      { key: '夫', label: '丈夫', hint: '老公' },
+      { key: '妻', label: '妻子', hint: '老婆' }
+    ]
+  },
+  {
+    id: 'siblings',
+    title: '兄弟姐妹',
+    items: [
+      { key: '兄', label: '哥哥', hint: '兄长' },
+      { key: '弟', label: '弟弟', hint: '弟弟' },
+      { key: '姐', label: '姐姐', hint: '姐姐' },
+      { key: '妹', label: '妹妹', hint: '妹妹' }
+    ]
+  },
+  {
+    id: 'children',
+    title: '子女晚辈',
+    items: [
+      { key: '子', label: '儿子', hint: '儿子' },
+      { key: '女', label: '女儿', hint: '女儿' }
+    ]
+  }
 ]
+
+// 兼容旧引用
+const OPTIONS = OPTION_GROUPS.reduce((acc, g) => acc.concat(g.items), [])
 
 function calcRelative(pathKeys) {
   if (!pathKeys || !pathKeys.length) {
-    return { title: '', tip: '请选择关系路径，例如：妈妈的哥哥' }
+    return { title: '', tip: '请选择关系路径，例如：妈妈 → 哥哥', empty: true }
   }
   if (pathKeys.length > 4) {
     return { title: '关系过远', tip: '暂支持 4 层以内常见称呼，建议拆开问。' }
@@ -113,15 +139,15 @@ function calcRelative(pathKeys) {
   if (title) {
     return {
       title,
-      tip: `关系链：我 → ${pathKeys.map((k) => EDGE[k] ? (EDGE[k].male || EDGE[k].female) : k).join(' → ')}`,
+      tip: `关系链：我 → ${pathKeys.map((k) => (EDGE[k] ? EDGE[k].male || EDGE[k].female : k)).join(' → ')}`,
       shareText: `【好算生活】这段亲戚关系应该叫「${title}」`
     }
   }
   return {
     title: '暂未收录',
-    tip: '这对组合暂时没有标准简表，可换一种近亲路径试试。',
+    tip: '这对组合暂时没有标准简表，可回退一层换个近亲路径。',
     shareText: '【好算生活】亲戚称呼计算'
   }
 }
 
-module.exports = { OPTIONS, calcRelative, MAP }
+module.exports = { OPTIONS, OPTION_GROUPS, calcRelative, MAP, EDGE }

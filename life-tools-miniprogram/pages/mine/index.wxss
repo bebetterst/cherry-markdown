@@ -49,17 +49,29 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
 
 .list-item {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  min-height: 104rpx;
   padding: 22rpx 22rpx;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1rpx solid var(--line);
-  border-radius: var(--radius);
+  border-bottom: 1rpx solid var(--line);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.tool-icon {
+  width: 64rpx;
+  height: 64rpx;
 }
 
 .name {
