@@ -14,4 +14,5 @@ fi
 
 echo "好算生活预览: http://127.0.0.1:${PORT}/"
 echo "自动演示:     http://127.0.0.1:${PORT}/?demo=1"
-exec python3 -m http.server "$PORT" --bind 127.0.0.1
+# 监听 0.0.0.0，便于 Cursor 端口转发 / Simple Browser 访问
+exec python3 -m http.server "$PORT" --bind 0.0.0.0
